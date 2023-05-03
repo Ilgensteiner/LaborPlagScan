@@ -1,15 +1,8 @@
 import tkinter as tk
-from tkinter import filedialog
-import zipfile
-import os
+from tkinter import filedialog, messagebox
 
-
-def extract_zip(zip_path):
-    with zipfile.ZipFile(zip_path, 'r') as zip_file:
-        folder_name = os.path.splitext(os.path.basename(zip_path))[0]
-        extract_path = os.path.join(os.path.dirname(zip_path), folder_name)
-        zip_file.extractall(path=extract_path)
-    return extract_path
+import FileEditor
+import PlagiatScanner
 
 
 def find_common_files(filenames, line_threshold):
@@ -40,27 +33,25 @@ if __name__ == '__main__':
 
 
     def start_plagscan():
-        zip_path = zip_selection.cget("text")
-        if zip_path:
-            zip_folder_path = extract_zip(zip_path)
-            zip_filenames = []
-            for foldername, subfolders, filenames in os.walk(zip_folder_path):
-                for filename in filenames:
-                    if filename.endswith('.zip'):
-                        zip_filenames.append(os.path.join(foldername, filename))
-            all_filenames = zip_filenames.copy()
-            all_filenames.append(zip_path)
-            common_files = find_common_files(all_filenames, 10)  # Change line_threshold as needed
-            with open('common_files.txt', 'w') as outfile:
-                for content, file_list in common_files.items():
-                    outfile.write("Content: " + content + "\n")
-                    for filename in file_list:
-                        outfile.write("File: " + filename + "\n")
-                    outfile.write("\n")
-            no_file_selected.config(text="Übereinstimmungen wurden in common_files.txt gespeichert.")
-        else:
-            no_file_selected.config(text="Bitte wählen Sie eine ZIP-Datei aus.")
+        selected_path = zip_selection.cget("text")
+        if selected_path == "":
+            info_textline.config(text="Keine ZIP-Datei/Ordner ausgewählt!")
+            return
+        elif selected_path.endswith(".zip"):
+            info_textline.config(text="ZIP-Datei wird entpackt...")
+            selected_path = FileEditor.extract_zip(selected_path)
+            info_textline.config(text="ZIP-Datei entpackt")
 
+        info_textline.config(text="Files werden entpackt...")
+        try:
+            students_folder = FileEditor.unpackZipFiles(selected_path)
+        except UnboundLocalError:
+            info_textline.config(text="")
+            messagebox.showerror("Fehler", "ZIP-Dateien der Einzellabore nicht gefunden!")
+            return
+        info_textline.config(text="Files entpackt")
+        info_textline.config(text="PlagiatScanner wird gestartet...")
+        PlagiatScanner.plagscan(students_folder)
 
     root = tk.Tk()
     root.title("PlagScan GUI")
@@ -74,7 +65,7 @@ if __name__ == '__main__':
     start_button = tk.Button(root, text="PlagScan starten", command=start_plagscan)
     start_button.pack()
 
-    no_file_selected = tk.Label(root, text="")
-    no_file_selected.pack()
+    info_textline = tk.Label(root, text="")
+    info_textline.pack()
 
     root.mainloop()
