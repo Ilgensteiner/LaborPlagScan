@@ -1,12 +1,45 @@
 import os
+from tkinter import messagebox
+import math
+
+import FileEditor
+import GUI
 
 
-def plagscan(students_folder: str) -> list:
+def start_plagscan(gui: GUI):
+    selected_path = gui.zip_selection.cget("text")
+    if selected_path == "":
+        messagebox.showerror("Fehler", "Keine ZIP-Datei ausgewählt!")
+        return
+    elif selected_path.endswith(".zip"):
+        gui.info_textline.config(text="ZIP-Datei wird entpackt...")
+        selected_path = FileEditor.extract_zip(selected_path)
+        gui.info_textline.config(text="ZIP-Datei entpackt")
+
+    gui.progressbar.pack()
+
+    gui.info_textline.config(text="Files werden entpackt...")
+    try:
+        students_folder = FileEditor.unpackZipFiles(selected_path, gui)
+    except UnboundLocalError:
+        gui.info_textline.config(text="")
+        messagebox.showerror("Fehler", "ZIP-Dateien der Einzellabore nicht gefunden!")
+        return
+    gui.info_textline.config(text="Files entpackt")
+    gui.info_textline.config(text="PlagiatScanner wird gestartet...")
+    plagscan(students_folder, gui)
+    gui.progressbar.pack_forget()
+    gui.info_textline.config(text="PlagiatScanner beendet")
+
+
+def plagscan(students_folder: str, gui: GUI) -> list:
     # 1. Festlegen der Struktur für das Vergleichsergebnis
     results = []
 
     # 2. Sammeln aller Java-Dateien für jeden Studenten
     student_folders = os.listdir(students_folder)
+    gui.set_progressbar_start(math.pow(len(student_folders), 2))
+
     for student_folder in student_folders:
         java_files = [f for f in os.listdir(os.path.join(students_folder, student_folder)) if f.endswith('.java')]
         student_files = [(student_folder, f) for f in java_files]
@@ -51,6 +84,7 @@ def plagscan(students_folder: str) -> list:
                                 'line': i + 1
                             }
                             results.append(result)
+                gui.update_progressbar_value(1)
 
     # 6. Zurückgabe der Ergebnisse
     return results

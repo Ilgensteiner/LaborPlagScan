@@ -1,5 +1,8 @@
 import os
+import time
 import zipfile
+
+import GUI
 
 
 def extract_zip(zip_path):
@@ -10,13 +13,19 @@ def extract_zip(zip_path):
     return extract_path
 
 
-def unpackZipFiles(folder_path: str):
+def unpackZipFiles(folder_path: str, gui: GUI):
     # 1. Liste aller Dateien im Ordner
     files = os.listdir(folder_path)
     zipfile_found = False
 
+    # 1.1. Einstellen der Progressbar
+    gui.set_progressbar_start(len(files))
+
     # 2. Schleife für alle Dateien im Ordner
     for file in files:
+        gui.update_progressbar_value(1)
+        print("unpackZipFiles: " + file)
+        time.sleep(1)
         # 3. Prüfen, ob Datei eine ZIP-Datei ist
         if not file.endswith('.zip'):
             continue
@@ -36,7 +45,9 @@ def unpackZipFiles(folder_path: str):
             subfolder_path = os.path.join(folder_path, subfolder)
             if not os.path.isdir(subfolder_path):
                 continue
-            extract_path = unpackZipFiles(subfolder_path)
+            extract_path = unpackZipFiles(subfolder_path, gui)
+            # return os.path.dirname(extract_path)
             return extract_path
 
-    return extract_path
+    return os.path.dirname(extract_path)
+    # return extract_path

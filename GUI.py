@@ -1,71 +1,59 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, ttk
 
-import FileEditor
 import PlagiatScanner
 
 
-def find_common_files(filenames, line_threshold):
-    file_contents = {}
-    common_files = {}
-    for filename in filenames:
-        with open(filename, 'r') as file:
-            try:
-                lines = file.readlines()
-            except UnicodeDecodeError:
-                continue
-            for line in lines:
-                if line not in file_contents:
-                    file_contents[line] = [filename]
-                else:
-                    file_contents[line].append(filename)
-            for content, file_list in file_contents.items():
-                if len(file_list) >= line_threshold:
-                    common_files[content] = file_list
-    return common_files
+def on_enter(e):
+    e.widget['background'] = '#1e79ff'
 
 
-if __name__ == '__main__':
-    def select_zip():
+def on_leave(e):
+    e.widget['background'] = '#1e90ff'
+
+
+class GUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.geometry("900x400")
+        self.root.title("PlagScan GUI")
+        self.root.configure(bg='#0a3055')
+
+        zip_button = tk.Button(self.root, text="ZIP auswählen", command=self.select_zip)
+        zip_button.pack(pady=10)
+        zip_button.config(width=20, height=3, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
+        zip_button.bind("<Enter>", on_enter)
+        zip_button.bind("<Leave>", on_leave)
+
+        self.zip_selection = tk.Label(self.root, text="")
+        self.zip_selection.pack()
+
+        start_button = tk.Button(self.root, text="PlagScan starten", command=lambda: PlagiatScanner.start_plagscan(self))
+        start_button.pack(pady=10)
+        start_button.config(width=20, height=3, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
+        start_button.bind("<Enter>", on_enter)
+        start_button.bind("<Leave>", on_leave)
+
+        self.info_textline = tk.Label(self.root, text="")
+        self.info_textline.pack()
+
+        self.progressbar = ttk.Progressbar(self.root, orient="horizontal", length=200, mode="determinate")
+
+    def set_progressbar_start(self, value: int):
+        self.progressbar['maximum'] = value
+        self.progressbar['value'] = 0
+        self.root.update_idletasks()
+
+    def set_progressbar_value(self, value: int):
+        self.progressbar['value'] = value
+        self.root.update_idletasks()
+
+    def update_progressbar_value(self, value: int):
+        self.progressbar['value'] += value
+        self.root.update_idletasks()
+
+    def select_zip(self):
         filepath = filedialog.askopenfilename(title="ZIP auswählen")
         if filepath:
-            zip_selection.config(text=filepath)
+            self.zip_selection.config(text=filepath)
 
-
-    def start_plagscan():
-        selected_path = zip_selection.cget("text")
-        if selected_path == "":
-            info_textline.config(text="Keine ZIP-Datei/Ordner ausgewählt!")
-            return
-        elif selected_path.endswith(".zip"):
-            info_textline.config(text="ZIP-Datei wird entpackt...")
-            selected_path = FileEditor.extract_zip(selected_path)
-            info_textline.config(text="ZIP-Datei entpackt")
-
-        info_textline.config(text="Files werden entpackt...")
-        try:
-            students_folder = FileEditor.unpackZipFiles(selected_path)
-        except UnboundLocalError:
-            info_textline.config(text="")
-            messagebox.showerror("Fehler", "ZIP-Dateien der Einzellabore nicht gefunden!")
-            return
-        info_textline.config(text="Files entpackt")
-        info_textline.config(text="PlagiatScanner wird gestartet...")
-        PlagiatScanner.plagscan(students_folder)
-
-    root = tk.Tk()
-    root.title("PlagScan GUI")
-
-    zip_button = tk.Button(root, text="ZIP auswählen", command=select_zip)
-    zip_button.pack()
-
-    zip_selection = tk.Label(root, text="")
-    zip_selection.pack()
-
-    start_button = tk.Button(root, text="PlagScan starten", command=start_plagscan)
-    start_button.pack()
-
-    info_textline = tk.Label(root, text="")
-    info_textline.pack()
-
-    root.mainloop()
