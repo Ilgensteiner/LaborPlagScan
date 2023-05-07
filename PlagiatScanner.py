@@ -50,21 +50,31 @@ def start_plagscan(gui: GUI):
     gui.info_textline.config(text="PlagiatScanner abgeschlossen")
 
 
-def replace_words_in_file(filepath, word_list):
+def file_to_list(filepath: str) -> list:
     with open(filepath, 'r') as file:
         lines = file.readlines()
+
     new_lines = []
-    for line in lines:
-        if '//' in line:
-            line = line.split('//')[0] + '\n'
-        words = re.findall(r'\b\w+\b', line)
+    for i, line in enumerate(lines):
+        line_list = [i, line]
+        new_lines.append(line_list)
+
+    return new_lines
+
+
+def replace_words_in_file(file_list: list, word_list: list) -> list:
+    new_lines = []
+    for line in file_list:
+        if '//' in line[1]:
+            line[1] = line[1].split('//')[0] + '\n'
+        words = re.findall(r'\b\w+\b', line[1])
         for word in words:
             if word not in word_list:
-                line = re.sub(r'\b' + re.escape(word) + r'\b', 'x', line)
-        new_lines.append(line)
-    new_text = ''.join(new_lines)
+                line[1] = re.sub(r'\b' + re.escape(word) + r'\b', 'x', line[1])
+        line_list = [line[0], line[1]]
+        new_lines.append(line_list)
 
-    return new_text
+    return new_lines
 
 
 def find_java_files(folder_path):
@@ -76,28 +86,58 @@ def find_java_files(folder_path):
     return java_files
 
 
+def get_plagcode_from_file(org_file_as_list: list, plag_result: list) -> str:
+    plag_code = ""
+    for i in range(plag_result[0], plag_result[1] + 1):
+        plag_code += org_file_as_list[i][1]
+    return plag_code
+
+
 def compare_files(file1_path: str, file2_path: str) -> float:
-    datei1 = replace_words_in_file(file1_path, java_syntax)
-    datei2 = replace_words_in_file(file2_path, java_syntax)
+    datei1_lines_orginal = file_to_list(file1_path)
+    datei2_lines_orginal = file_to_list(file2_path)
 
-    lines1 = datei1.split('\n')
-    lines2 = datei2.split('\n')
-    lines1 = [line.rstrip() for line in lines1 if line.strip() != '']
-    lines2 = [line.rstrip() for line in lines2 if line.strip() != '']
+    datei1_lines = replace_words_in_file(datei1_lines_orginal, java_syntax)
+    datei2_lines = replace_words_in_file(datei2_lines_orginal, java_syntax)
 
-    for i in range(len(lines1)):
+    datei1_lines = [line for line in datei1_lines if line[1] != '\n']
+    datei2_lines = [line for line in datei2_lines if line[1] != '\n']
+
+    for line in datei1_lines:
+        line[1] = line[1].strip()
+
+    for line in datei2_lines:
+        line[1] = line[1].strip()
+
+    start_datei1 = 0
+    start_datei2 = 0
+    plag_list = []
+
+    i = 0
+    while i < len(datei1_lines):
         count = 0
-        for j in range(len(lines2)):
-            if lines1[i] == lines2[j]:
+        for j in range(len(datei2_lines)):
+            if datei1_lines[i][1] == datei2_lines[j][1]:
+                if count == 0:
+                    start_datei1 = datei1_lines[i][0]
+                    start_datei2 = datei2_lines[j][0]
                 count += 1
                 i += 1
-                if count >= 5:
-                    return True
-                if i >= len(lines1):
+                if i >= len(datei1_lines):
+                    if count >= 5:
+                        plag_list.append([start_datei1, datei1_lines[i-1][0], start_datei2, datei2_lines[j][0]])
                     break
             else:
+                if count >= 5:
+                    plag_list.append([start_datei1, datei1_lines[i][0], start_datei2, datei2_lines[j][0]])
                 count = 0
-    return False
+        i += 1
+
+    result_code_list = []
+    for plagiat in plag_list:
+        result_code_list.append(get_plagcode_from_file(datei1_lines_orginal, plagiat))
+
+    return result_code_list
 
 
 def plagscan(students_folder: str, gui: GUI) -> list:
@@ -118,33 +158,41 @@ def plagscan(students_folder: str, gui: GUI) -> list:
         gui.update_progressbar_value(1)
 
     # 3. Schleife für alle Kombinationen von Studenten
-    gui.set_progressbar_start(math.pow(len(student_folders_list), 2))
+    plagiat_dict = {}
+    gui.set_progressbar_start((math.pow(len(student_folders_list), 2) / 2))
     gui.info_textline.config(text="Files werden verglichen...")
     for i, student1 in enumerate(student_dict):
         for student2 in list(student_dict)[i + 1:]:
             for file1 in student_dict[student1]:
                 if file1 in student_dict[student2]:
                     plagiat = compare_files(student_dict[student1][file1], student_dict[student2][file1])
-                    print(student1 + file1 + " " + student2 + file1 + " " + str(plagiat))
+                    for plagiat_code in plagiat:
+                        if plagiat_code not in plagiat_dict:
+                            plagiat_dict[plagiat_code] = []
+                        plagiat_dict[plagiat_code].append([student1, file1])
+                        plagiat_dict[plagiat_code].append([student2, file1])
                 else:
                     for file2 in student_dict[student2]:
                         plagiat = compare_files(student_dict[student1][file1], student_dict[student2][file2])
-                        print(student1 + file1 + " " + student2 + file2 + " " + str(plagiat))
+                        for plagiat_code in plagiat:
+                            if plagiat_code not in plagiat_dict:
+                                plagiat_dict[plagiat_code] = []
+                            plagiat_dict[plagiat_code].append([student1, file1])
+                            plagiat_dict[plagiat_code].append([student2, file2])
             gui.update_progressbar_value(1)
 
-    # for student1 in student_dict:
-    #     for student2 in student_dict:
-    #         if student1 == student2:
-    #             continue
-    #         for file1 in student_dict[student1]:
-    #             if file1 in student_dict[student2]:
-    #                 plagiat = compare_files(student_dict[student1][file1], student_dict[student2][file1])
-    #                 print(student1 + file1 + " " + student2 + file1 + " " + str(plagiat))
-    #             else:
-    #                 for file2 in student_dict[student2]:
-    #                     plagiat = compare_files(student_dict[student1][file1], student_dict[student2][file2])
-    #                     print(student1 + file1 + " " + student2 + file2 + " " + str(plagiat))
-    #         gui.update_progressbar_value(1)
+    # 4. Ergebnisstruktur erstellen
+    stud_plag_count = {}
+    for key, value in plagiat_dict.items():
+        for element in value:
+            if element[0] not in stud_plag_count:
+                stud_plag_count[element[0]] = 0
+            stud_plag_count[element[0]] += 1
+
+    print("Anzahl Plagiate:" + str(len(plagiat_dict)))
+    print(plagiat_dict)
+    print("Anzahl Studenten mit Plagiat:" + str(len(stud_plag_count)))
+    print(stud_plag_count)
 
 
 def plagscanAlt(students_folder: str, gui: GUI) -> list:
