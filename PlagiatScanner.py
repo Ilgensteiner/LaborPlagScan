@@ -189,10 +189,13 @@ def plagscan(students_folder: str, gui: GUI) -> list:
                 stud_plag_count[element[0]] = 0
             stud_plag_count[element[0]] += 1
 
-    print("Anzahl Plagiate:" + str(len(plagiat_dict)))
-    print(plagiat_dict)
-    print("Anzahl Studenten mit Plagiat:" + str(len(stud_plag_count)))
-    print(stud_plag_count)
+    # 5. Ergebnis speichern
+    save_path = os.path.join(students_folder.rsplit(os.sep, 3)[0], "plagiat_result.txt")
+    with open(save_path, "w") as f:
+        f.write("Anzahl Plagiate:" + str(len(plagiat_dict)) + "\n")
+        f.write(str(plagiat_dict) + "\n")
+        f.write("Anzahl Studenten mit Plagiat:" + str(len(stud_plag_count)) + "\n")
+        f.write(str(stud_plag_count) + "\n")
 
 
 def plagscanAlt(students_folder: str, gui: GUI) -> list:
