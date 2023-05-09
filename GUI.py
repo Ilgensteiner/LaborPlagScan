@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, ttk, PhotoImage
-from PIL import Image, ImageTk
+from tkinter import filedialog, ttk
 import pygame
 
 import PlagiatScanner
