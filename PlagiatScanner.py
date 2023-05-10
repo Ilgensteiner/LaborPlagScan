@@ -1,3 +1,4 @@
+import ast
 import os
 from tkinter import messagebox
 import math
@@ -64,15 +65,32 @@ def file_to_list(filepath: str) -> list:
 
 def replace_words_in_file(file_list: list, word_list: list) -> list:
     new_lines = []
+    commentblock = False
+
     for line in file_list:
-        if '//' in line[1]:
-            line[1] = line[1].split('//')[0] + '\n'
-        words = re.findall(r'\b\w+\b', line[1])
-        for word in words:
-            if word not in word_list:
-                line[1] = re.sub(r'\b' + re.escape(word) + r'\b', 'x', line[1])
-        line_list = [line[0], line[1]]
-        new_lines.append(line_list)
+        new_line = line[:]
+        if '/**' in new_line[1]:
+            commentblock = True
+            new_line[1] = ''
+            new_lines.append(new_line)
+            continue
+        elif '*/' in new_line[1]:
+            commentblock = False
+            new_line[1] = ''
+            new_lines.append(new_line)
+            continue
+        elif commentblock:
+            new_line[1] = ''
+            new_lines.append(new_line)
+            continue
+        else:
+            if '//' in new_line[1]:
+                new_line[1] = new_line[1].split('//')[0] + '\n'
+            words = re.findall(r'\b\w+\b', new_line[1])
+            for word in words:
+                if word not in word_list:
+                    new_line[1] = re.sub(r'\b' + re.escape(word) + r'\b', 'x', new_line[1])
+            new_lines.append(new_line)
 
     return new_lines
 
@@ -93,21 +111,31 @@ def get_plagcode_from_file(org_file_as_list: list, plag_result: list) -> str:
     return plag_code
 
 
+def filter_lines(file_as_list: list) -> list:
+    with open('filter.txt', 'r') as f:
+        exclude_strings = ast.literal_eval(f.read())
+    filtered_lines = []
+    for line in file_as_list:
+        if not any(exclude_string in line for exclude_string in exclude_strings):
+            filtered_lines.append(line)
+    return filtered_lines
+
+
 def compare_files(file1_path: str, file2_path: str) -> float:
     datei1_lines_orginal = file_to_list(file1_path)
     datei2_lines_orginal = file_to_list(file2_path)
 
-    datei1_lines = replace_words_in_file(datei1_lines_orginal, java_syntax)
-    datei2_lines = replace_words_in_file(datei2_lines_orginal, java_syntax)
+    datei1_lines_prepared = replace_words_in_file(datei1_lines_orginal, java_syntax)
+    datei2_lines_prepared = replace_words_in_file(datei2_lines_orginal, java_syntax)
 
-    datei1_lines = [line for line in datei1_lines if line[1] != '\n']
-    datei2_lines = [line for line in datei2_lines if line[1] != '\n']
-
-    for line in datei1_lines:
+    for line in datei1_lines_prepared:
         line[1] = line[1].strip()
 
-    for line in datei2_lines:
+    for line in datei2_lines_prepared:
         line[1] = line[1].strip()
+
+    datei1_lines = filter_lines(datei1_lines_prepared)
+    datei2_lines = filter_lines(datei2_lines_prepared)
 
     start_datei1 = 0
     start_datei2 = 0
@@ -196,63 +224,3 @@ def plagscan(students_folder: str, gui: GUI) -> list:
         f.write(str(plagiat_dict) + "\n")
         f.write("Anzahl Studenten mit Plagiat:" + str(len(stud_plag_count)) + "\n")
         f.write(str(stud_plag_count) + "\n")
-
-
-def plagscanAlt(students_folder: str, gui: GUI) -> list:
-    # 1. Festlegen der Struktur für das Vergleichsergebnis
-    results = []
-
-    # 2. Sammeln aller Java-Dateien für jeden Studenten
-    student_folders = os.listdir(students_folder)
-    gui.set_progressbar_start(math.pow(len(student_folders), 2))
-
-    for student_folder in student_folders:
-        # TODO: Funktion find Java-Files, Problem: Java-Files können in Unterordnern sein (Rekursion),
-        #  wenn keine Java-Files gefunden werden, dann Fehlermeldung mit Studentenname
-        java_files = [f for f in os.listdir(os.path.join(students_folder, student_folder)) if f.endswith('.java')]
-        student_files = [(student_folder, f) for f in java_files]
-
-        # 3. Schleife für alle Kombinationen von Studenten
-        for other_student_folder in student_folders:
-            if other_student_folder == student_folder:
-                continue
-
-            other_java_files = [f for f in os.listdir(os.path.join(students_folder, other_student_folder)) if
-                                f.endswith('.java')]
-            other_student_files = [(other_student_folder, f) for f in other_java_files]
-
-            for student_file in student_files:
-                for other_student_file in other_student_files:
-                    # 4. Vergleich von Java-Dateien
-                    if student_file[1] == other_student_file[1]:
-                        continue
-
-                    student_file_path = os.path.join(students_folder, student_file[0], student_file[1])
-                    other_student_file_path = os.path.join(students_folder, other_student_file[0],
-                                                           other_student_file[1])
-
-                    with open(student_file_path) as f1, open(other_student_file_path) as f2:
-                        student_lines = f1.readlines()
-                        other_student_lines = f2.readlines()
-
-                        for i, student_line in enumerate(student_lines):
-                            if i >= len(other_student_lines):
-                                break
-
-                            other_student_line = other_student_lines[i]
-
-                            # Vergleich der Zeilen
-                            if student_line.strip() != other_student_line.strip():
-                                continue
-
-                            # 5. Speicherung von Plagiatsinformationen
-                            result = {
-                                'students': [student_file[0], other_student_file[0]],
-                                'files': [student_file[1], other_student_file[1]],
-                                'line': i + 1
-                            }
-                            results.append(result)
-                gui.update_progressbar_value(1)
-
-    # 6. Zurückgabe der Ergebnisse
-    return results
