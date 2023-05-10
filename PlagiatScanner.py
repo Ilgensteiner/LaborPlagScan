@@ -26,6 +26,7 @@ java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch"
 
 
 def start_plagscan(gui: GUI):
+    """Starts the PlagiatScanner, which compares all files in the students folder with each other"""
     selected_path = gui.zip_selection.cget("text")
     if selected_path == "":
         messagebox.showerror("Fehler", "Keine ZIP-Datei ausgewählt!")
@@ -52,6 +53,7 @@ def start_plagscan(gui: GUI):
 
 
 def file_to_list(filepath: str) -> list:
+    """Converts a file to a list of lines, each line is a list with the line number and the line itself"""
     with open(filepath, 'r') as file:
         lines = file.readlines()
 
@@ -64,6 +66,7 @@ def file_to_list(filepath: str) -> list:
 
 
 def replace_words_in_file(file_list: list, word_list: list) -> list:
+    """Replaces all variables in a file with a placeholder and deletes all comments"""
     new_lines = []
     commentblock = False
 
@@ -96,6 +99,7 @@ def replace_words_in_file(file_list: list, word_list: list) -> list:
 
 
 def find_java_files(folder_path):
+    """Returns a dictionary with all java files in the given folder and its subfolders"""
     java_files = {}
     for root, dirs, files in os.walk(folder_path):
         for file in files:
@@ -105,6 +109,7 @@ def find_java_files(folder_path):
 
 
 def get_plagcode_from_file(org_file_as_list: list, plag_result: list) -> str:
+    """Returns the plagiat code from a file as a string"""
     plag_code = ""
     for i in range(plag_result[0], plag_result[1] + 1):
         plag_code += org_file_as_list[i][1]
@@ -112,6 +117,7 @@ def get_plagcode_from_file(org_file_as_list: list, plag_result: list) -> str:
 
 
 def filter_lines(file_as_list: list) -> list:
+    """Filters all lines from a file that contain a string from the filter.txt file"""
     with open('filter.txt', 'r') as f:
         exclude_strings = ast.literal_eval(f.read())
     filtered_lines = []
@@ -121,7 +127,8 @@ def filter_lines(file_as_list: list) -> list:
     return filtered_lines
 
 
-def compare_files(file1_path: str, file2_path: str) -> float:
+def compare_files(file1_path: str, file2_path: str) -> list:
+    """Compares two files and returns the lines of code that are the same in both files"""
     datei1_lines_orginal = file_to_list(file1_path)
     datei2_lines_orginal = file_to_list(file2_path)
 
@@ -163,12 +170,13 @@ def compare_files(file1_path: str, file2_path: str) -> float:
 
     result_code_list = []
     for plagiat in plag_list:
-        result_code_list.append(get_plagcode_from_file(datei1_lines_orginal, plagiat))
+        result_code_list.append([get_plagcode_from_file(datei1_lines_orginal, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
 
     return result_code_list
 
 
 def plagscan(students_folder: str, gui: GUI) -> list:
+    """Scans all files in the given folder for plagiarism"""
     # 1. Festlegen der Struktur für das Vergleichsergebnis
     results = {}
 
@@ -193,20 +201,22 @@ def plagscan(students_folder: str, gui: GUI) -> list:
         for student2 in list(student_dict)[i + 1:]:
             for file1 in student_dict[student1]:
                 if file1 in student_dict[student2]:
+                    # plagiat = [[CODE, Stud1-ZeileStart, Stud1-ZeileEnde, Stud2-ZeileStart, Stud2-ZeileEnde], ...]
                     plagiat = compare_files(student_dict[student1][file1], student_dict[student2][file1])
                     for plagiat_code in plagiat:
-                        if plagiat_code not in plagiat_dict:
-                            plagiat_dict[plagiat_code] = []
-                        plagiat_dict[plagiat_code].append([student1, file1])
-                        plagiat_dict[plagiat_code].append([student2, file1])
+                        if plagiat_code[0] not in plagiat_dict:
+                            plagiat_dict[plagiat_code[0]] = []
+                        plagiat_dict[plagiat_code[0]].append([student1, file1, [plagiat_code[1], plagiat_code[2]]])
+                        plagiat_dict[plagiat_code[0]].append([student2, file1, [plagiat_code[3], plagiat_code[4]]])
                 else:
                     for file2 in student_dict[student2]:
+                        # plagiat = [[CODE, Stud1-ZeileStart, Stud1-ZeileEnde, Stud2-ZeileStart, Stud2-ZeileEnde], ...]
                         plagiat = compare_files(student_dict[student1][file1], student_dict[student2][file2])
                         for plagiat_code in plagiat:
-                            if plagiat_code not in plagiat_dict:
-                                plagiat_dict[plagiat_code] = []
-                            plagiat_dict[plagiat_code].append([student1, file1])
-                            plagiat_dict[plagiat_code].append([student2, file2])
+                            if plagiat_code[0] not in plagiat_dict:
+                                plagiat_dict[plagiat_code[0]] = []
+                            plagiat_dict[plagiat_code[0]].append([student1, file1, [plagiat_code[1], plagiat_code[2]]])
+                            plagiat_dict[plagiat_code[0]].append([student2, file2, [plagiat_code[3], plagiat_code[4]]])
             gui.update_progressbar_value(1)
 
     # 4. Ergebnisstruktur erstellen
