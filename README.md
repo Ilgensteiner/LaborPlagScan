@@ -9,3 +9,5 @@ Anleitung:
 3. ZIP auswählen
 4. PlagScan starten
 5. Ergebnisse angucken
+
+Test
