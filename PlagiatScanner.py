@@ -1,4 +1,5 @@
 import ast
+import json
 import os
 from tkinter import messagebox
 import math
@@ -65,7 +66,7 @@ def file_to_list(filepath: str) -> list:
     return new_lines
 
 
-def replace_words_in_file(file_list: list, word_list: list) -> list:
+def replace_words_in_file(file_list: list, word_list: set) -> list:
     """Replaces all variables in a file with a placeholder and deletes all comments"""
     new_lines = []
     commentblock = False
@@ -108,11 +109,17 @@ def find_java_files(folder_path):
     return java_files
 
 
-def get_plagcode_from_file(org_file_as_list: list, plag_result: list) -> str:
+def get_plagcode_from_file(file_as_list: list, plag_result: list) -> str:
     """Returns the plagiat code from a file as a string"""
     plag_code = ""
-    for i in range(plag_result[0], plag_result[1] + 1):
-        plag_code += org_file_as_list[i][1]
+    for line in file_as_list:
+        if line[0] >= plag_result[0] or line[0] <= plag_result[1]:
+            plag_code += line[1]
+        if line[0] > plag_result[1]:
+            break
+
+    # for i in range(plag_result[0], plag_result[1] + 1):
+    #     plag_code += file_as_list[i][1]
     return plag_code
 
 
@@ -170,12 +177,37 @@ def compare_files(file1_path: str, file2_path: str) -> list:
 
     result_code_list = []
     for plagiat in plag_list:
-        result_code_list.append([get_plagcode_from_file(datei1_lines_orginal, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
+        # 28 plag
+        result_code_list.append([get_plagcode_from_file(datei1_lines, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
 
     return result_code_list
 
 
-def plagscan(students_folder: str, gui: GUI) -> list:
+def save_auswertung_to_file(d: dict, filename: str):
+    path = f'result/{filename}'
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(d, f)
+
+
+def load_auswertung_from_file(filename: str) -> dict:
+    pass
+
+
+def create_stats(plag_dict: dict) -> list:
+    """Creates a list with the stats for the given dictionary\n
+    [Stud_dict, Plag_Count, Stud_Count]"""
+    stud_plag_count = {}
+    for key, value in plag_dict.items():
+        for element in value:
+            if element[0] not in stud_plag_count:
+                stud_plag_count[element[0]] = 0
+            stud_plag_count[element[0]] += 1
+
+    return [stud_plag_count, len(plag_dict), len(stud_plag_count)]
+
+
+def plagscan(students_folder: str, gui: GUI):
     """Scans all files in the given folder for plagiarism"""
     # 1. Festlegen der Struktur für das Vergleichsergebnis
     results = {}
@@ -220,17 +252,10 @@ def plagscan(students_folder: str, gui: GUI) -> list:
             gui.update_progressbar_value(1)
 
     # 4. Ergebnisstruktur erstellen
-    stud_plag_count = {}
-    for key, value in plagiat_dict.items():
-        for element in value:
-            if element[0] not in stud_plag_count:
-                stud_plag_count[element[0]] = 0
-            stud_plag_count[element[0]] += 1
+    stats_list = create_stats(plagiat_dict)
+    print("\nAnzahl Plagiate:" + str(stats_list[1]))
+    print("Anzahl Studenten mit Plagiat:" + str(stats_list[2]))
+    print(str(stats_list[0]))
 
     # 5. Ergebnis speichern
-    save_path = os.path.join(students_folder.rsplit(os.sep, 3)[0], "plagiat_result.txt")
-    with open(save_path, "w") as f:
-        f.write("Anzahl Plagiate:" + str(len(plagiat_dict)) + "\n")
-        f.write(str(plagiat_dict) + "\n")
-        f.write("Anzahl Studenten mit Plagiat:" + str(len(stud_plag_count)) + "\n")
-        f.write(str(stud_plag_count) + "\n")
+    save_auswertung_to_file(plagiat_dict, "last_result.json")
