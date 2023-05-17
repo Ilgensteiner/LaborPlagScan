@@ -1,13 +1,11 @@
 import ast
-import json
 import os
 from tkinter import messagebox
 import math
 import re
 
 import FileEditor
-import GUI
-
+import mainGUI
 
 java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
                "default", "double", "do", "else", "enum", "extends", "final", "finally", "float", "for", "goto",
@@ -26,7 +24,7 @@ java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch"
                "IllegalArgumentException"}
 
 
-def start_plagscan(gui: GUI):
+def start_plagscan(gui: mainGUI):
     """Starts the PlagiatScanner, which compares all files in the students folder with each other"""
     selected_path = gui.zip_selection.cget("text")
     if selected_path == "":
@@ -37,7 +35,9 @@ def start_plagscan(gui: GUI):
         selected_path = FileEditor.extract_zip(selected_path)
         gui.info_textline.config(text="ZIP-Datei entpackt")
 
-    gui.progressbar.pack()
+    gui.progressbar.grid(row=4, column=1, sticky="ew")
+    gui.result_button.grid_forget()
+    gui.root.update()
 
     gui.info_textline.config(text="Files werden entpackt...")
     try:
@@ -49,7 +49,8 @@ def start_plagscan(gui: GUI):
     gui.info_textline.config(text="Files entpackt")
     gui.info_textline.config(text="PlagiatScanner wird gestartet...")
     plagscan(students_folder, gui)
-    gui.progressbar.pack_forget()
+    gui.progressbar.grid_forget()
+    gui.create_open_result_button(None)
     gui.info_textline.config(text="PlagiatScanner abgeschlossen")
 
 
@@ -183,17 +184,6 @@ def compare_files(file1_path: str, file2_path: str) -> list:
     return result_code_list
 
 
-def save_auswertung_to_file(d: dict, filename: str):
-    path = f'result/{filename}'
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w') as f:
-        json.dump(d, f)
-
-
-def load_auswertung_from_file(filename: str) -> dict:
-    pass
-
-
 def create_stats(plag_dict: dict) -> list:
     """Creates a list with the stats for the given dictionary\n
     [Stud_dict, Plag_Count, Stud_Count]"""
@@ -207,7 +197,7 @@ def create_stats(plag_dict: dict) -> list:
     return [stud_plag_count, len(plag_dict), len(stud_plag_count)]
 
 
-def plagscan(students_folder: str, gui: GUI):
+def plagscan(students_folder: str, gui: mainGUI):
     """Scans all files in the given folder for plagiarism"""
     # 1. Festlegen der Struktur für das Vergleichsergebnis
     results = {}
@@ -258,4 +248,4 @@ def plagscan(students_folder: str, gui: GUI):
     print(str(stats_list[0]))
 
     # 5. Ergebnis speichern
-    save_auswertung_to_file(plagiat_dict, "last_result.json")
+    FileEditor.save_auswertung_to_file(plagiat_dict)

@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, ttk
 import pygame
 
+import FileEditor
 import PlagiatScanner
 
 
@@ -16,27 +17,39 @@ def on_leave(e):
 class GUI:
     def __init__(self, root):
         self.root = root
-        self.root.geometry("600x300")
+        self.root.geometry("600x350")
         self.root.title("PlagScan for Java-Labore")
         self.root.configure(bg='#0a3055')
 
+        # Create placeholders for column 0 and 2
+        tk.Label(self.root, text="", bg="#0a3055", width=28).grid(row=0, column=0)
+        tk.Label(self.root, text="", bg="#0a3055", width=28).grid(row=0, column=2)
+
         zip_button = tk.Button(self.root, text="ZIP auswählen", command=self.select_zip)
-        zip_button.pack(pady=10)
-        zip_button.config(width=20, height=3, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
+        zip_button.grid(row=0, column=1, pady=10, sticky="ew")
+        zip_button.config(width=20, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
         zip_button.bind("<Enter>", on_enter)
         zip_button.bind("<Leave>", on_leave)
 
-        self.zip_selection = tk.Label(self.root, text="")
-        self.zip_selection.pack()
+        self.zip_selection = tk.Label(self.root, text="", bg="#0a3055", fg="white", font=("Calibri", 12))
+        self.zip_selection.grid(row=1, column=0, columnspan=3, sticky="ew")
 
-        start_button = tk.Button(self.root, text="PlagScan starten", command=lambda: PlagiatScanner.start_plagscan(self))
-        start_button.pack(pady=10)
-        start_button.config(width=20, height=3, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
+        start_button = tk.Button(self.root, text="PlagScan starten",
+                                 command=lambda: PlagiatScanner.start_plagscan(self))
+        start_button.grid(row=2, column=1, pady=10, sticky="ew")
+        start_button.config(width=20, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
         start_button.bind("<Enter>", on_enter)
         start_button.bind("<Leave>", on_leave)
 
-        self.info_textline = tk.Label(self.root, text="")
-        self.info_textline.pack()
+        self.info_textline = tk.Label(self.root, text="", bg="#0a3055", fg="white", font=("Calibri", 12))
+        self.info_textline.grid(row=3, column=0, columnspan=3, sticky="ew")
+
+        self.progressbar = ttk.Progressbar(self.root, orient="horizontal", length=200, mode="determinate")
+
+        self.result_button = None
+        last_save = FileEditor.get_last_modified_file()
+        if last_save is not None:
+            self.create_open_result_button(last_save)
 
         self.name_textline = tk.Button(self.root, text="© 2023 by Erik Ilgenstein", bg="#0a3055", fg="grey",
                                        font=("Calibri", 10), border=0, command=self.hidden_button_click,
@@ -46,8 +59,6 @@ class GUI:
         self.clicks = 0
         self.music_playing = False
         pygame.mixer.init()
-
-        self.progressbar = ttk.Progressbar(self.root, orient="horizontal", length=200, mode="determinate")
 
     def hidden_button_click(self):
         # Zähle Klicks
@@ -64,6 +75,15 @@ class GUI:
                 pygame.mixer.music.pause()
                 self.music_playing = False
 
+    def create_open_result_button(self, filename: str):
+        if filename is None:
+            filename = FileEditor.get_last_modified_file()
+        self.result_button = tk.Button(self.root, text=f"Open {filename}", command="")
+        self.result_button.grid(row=5, column=1, pady=10, sticky="ew")
+        self.result_button.config(width=20, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
+        self.result_button.bind("<Enter>", on_enter)
+        self.result_button.bind("<Leave>", on_leave)
+
     def set_progressbar_start(self, value: int):
         self.progressbar['maximum'] = value
         self.progressbar['value'] = 0
@@ -77,8 +97,10 @@ class GUI:
         self.progressbar['value'] += value
         self.root.update_idletasks()
 
+    def remove_progressbar(self):
+        self.progressbar.style = 'none'
+
     def select_zip(self):
         filepath = filedialog.askopenfilename(title="ZIP auswählen")
         if filepath:
             self.zip_selection.config(text=filepath)
-

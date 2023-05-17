@@ -1,21 +1,8 @@
 # Create a List with all Parameters of the Java-Syntax
 import re
+import PlagiatScanner
 
-java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
-               "default", "double", "do", "else", "enum", "extends", "final", "finally", "float", "for", "goto",
-               "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new", "package",
-               "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
-               "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while", "true",
-               "false", "null", "String", "System", "out", "println", "print", "Scanner", "nextInt", "nextLine",
-               "new", "File", "exists", "length", "length()", "charAt", "substring", "equals", "equalsIgnoreCase",
-               "next", "hasNext", "hasNextLine", "hasNextInt", "hasNextDouble", "hasNextBoolean", "hasNextByte",
-               "hasNextFloat", "hasNextLong", "hasNextShort", "hasNextBigDecimal", "hasNextBigInteger",
-               "hasNextBigInteger", "hasNextBigDecimal", "hasNextBigInteger", "{", "}", "(", ")", "[", "]", ";", "=",
-               ":", ",", "+", "-", "*", "%", "++", "--", "==", "!=", ">", "<", ">=", "<=", "&&", "||", "!", "&",
-               "|", "^", "~", "<<", ">>", ">>>", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", ">>>=",
-               "?", "Main", "main", "args", "array", "temp", "Exception", "printStackTrace", "getMessage", "abstrakt",
-               "@override", "@Override", "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize", "getClass",
-               "IllegalArgumentException"}
+java_syntax = PlagiatScanner.java_syntax
 
 
 def replace_syntax_in_file(filepath, word_list):

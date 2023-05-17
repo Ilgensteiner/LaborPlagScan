@@ -1,5 +1,5 @@
 import tkinter as tk
-from GUI import GUI
+from mainGUI import GUI
 
 
 if __name__ == '__main__':
