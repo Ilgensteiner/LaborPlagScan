@@ -111,7 +111,7 @@ def find_java_files(folder_path):
     return java_files
 
 
-def get_plagcode_from_file(file_as_list: list, plag_result: list) -> str:
+def get_plagcode_from_filelist(file_as_list: list, plag_result: list) -> str:
     """Returns the plagiat code from a file as a string"""
     plag_code = ""
     for line in file_as_list:
@@ -180,7 +180,7 @@ def compare_files(file1_path: str, file2_path: str) -> list:
     result_code_list = []
     for plagiat in plag_list:
         # 28 plag
-        result_code_list.append([get_plagcode_from_file(datei1_lines, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
+        result_code_list.append([get_plagcode_from_filelist(datei1_lines, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
 
     return result_code_list
 
@@ -229,8 +229,10 @@ def plagscan(students_folder: str, gui: mainGUI):
                     for plagiat_code in plagiat:
                         if plagiat_code[0] not in plagiat_dict:
                             plagiat_dict[plagiat_code[0]] = []
-                        plagiat_dict[plagiat_code[0]].append([student1, file1, [plagiat_code[1], plagiat_code[2]]])
-                        plagiat_dict[plagiat_code[0]].append([student2, file1, [plagiat_code[3], plagiat_code[4]]])
+                        # plagiat_dict[plagiat_code[0]].append([student1, file1, [plagiat_code[1], plagiat_code[2]]])
+                        # plagiat_dict[plagiat_code[0]].append([student2, file1, [plagiat_code[3], plagiat_code[4]]])
+                        plagiat_dict[plagiat_code[0]].append([student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
+                        plagiat_dict[plagiat_code[0]].append([student2, student_dict[student2][file1], [plagiat_code[3], plagiat_code[4]]])
                 else:
                     for file2 in student_dict[student2]:
                         # plagiat = [[CODE, Stud1-ZeileStart, Stud1-ZeileEnde, Stud2-ZeileStart, Stud2-ZeileEnde], ...]
@@ -238,8 +240,10 @@ def plagscan(students_folder: str, gui: mainGUI):
                         for plagiat_code in plagiat:
                             if plagiat_code[0] not in plagiat_dict:
                                 plagiat_dict[plagiat_code[0]] = []
-                            plagiat_dict[plagiat_code[0]].append([student1, file1, [plagiat_code[1], plagiat_code[2]]])
-                            plagiat_dict[plagiat_code[0]].append([student2, file2, [plagiat_code[3], plagiat_code[4]]])
+                            # plagiat_dict[plagiat_code[0]].append([student1, file1, [plagiat_code[1], plagiat_code[2]]])
+                            # plagiat_dict[plagiat_code[0]].append([student2, file2, [plagiat_code[3], plagiat_code[4]]])
+                            plagiat_dict[plagiat_code[0]].append([student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
+                            plagiat_dict[plagiat_code[0]].append([student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
             gui.update_progressbar_value(1)
 
     # 4. Ergebnisstruktur erstellen

@@ -4,6 +4,7 @@ import pygame
 
 import FileEditor
 import PlagiatScanner
+import tableGui
 
 
 def on_enter(e):
@@ -78,11 +79,14 @@ class GUI:
     def create_open_result_button(self, filename: str):
         if filename is None:
             filename = FileEditor.get_last_modified_file()
-        self.result_button = tk.Button(self.root, text=f"Open {filename}", command="")
+        self.result_button = tk.Button(self.root, text=f"Open {filename}", command=self.open_table_gui)
         self.result_button.grid(row=5, column=1, pady=10, sticky="ew")
         self.result_button.config(width=20, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
         self.result_button.bind("<Enter>", on_enter)
         self.result_button.bind("<Leave>", on_leave)
+
+    def open_table_gui(self):
+        table = tableGui.TableGui(FileEditor.load_auswertung_from_file("last_result"))
 
     def set_progressbar_start(self, value: int):
         self.progressbar['maximum'] = value
