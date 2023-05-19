@@ -1,3 +1,4 @@
+import tkinter
 import tkinter as tk
 from tkinter import filedialog, ttk
 import pygame
@@ -13,6 +14,10 @@ def on_enter(e):
 
 def on_leave(e):
     e.widget['background'] = '#1e90ff'
+
+
+def display_msgbox(title, message):
+    tkinter.messagebox.showinfo(title, message)
 
 
 class GUI:

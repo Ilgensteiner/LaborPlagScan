@@ -91,10 +91,23 @@ def load_auswertung_from_file(filename: str) -> dict:
 
 
 def read_file(filepath, lines=None):
-    # TODO: Vieleicht noch paar Zeilen drunter und drüber mit ausgeben (+ Markieren wann eig. Start und Ende ist)
     with open(filepath, 'r') as file:
         content = file.readlines()
         if lines:
+            content_parts = []
             start, end = lines
-            content = content[start-1:end]
+            # before
+            for i in content[max(start-5, 0):start-1]:
+                content_parts.append(i)
+            content_parts.append("\n\t\t------PLAGIAT START------\n\n")
+
+            # plagiat
+            for i in content[start-1:end]:
+                content_parts.append(i)
+
+            # after
+            content_parts.append("\n\t\t-------PLAGIAT END-------\n\n")
+            for i in content[end:min(end+5, len(content))]:
+                content_parts.append(i)
+            return ''.join(content_parts)
         return ''.join(content)

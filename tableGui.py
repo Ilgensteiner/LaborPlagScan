@@ -7,8 +7,8 @@ import FileEditor
 
 class TableGui:
     def __init__(self, data):
+        self.auswertung_label = None
         self.data = data
-        print(self.data)
         self.items = []
         self.items_plagiat = []
         self.items_unsicher = []
@@ -55,13 +55,6 @@ class TableGui:
         canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
         canvas.bind("<Configure>", update_inner_frame)
 
-        # Create Style Table.Tlabel
-        style = ttk.Style()
-        style.configure("Table.TLabel", background="white", foreground="black",
-                        font=("Calibri", 12), borderwidth=2, relief="solid", minwidth=40, padding=5, anchor=tk.NW)
-        style.configure("TableHead.TLabel", background="white", foreground="black",
-                        font=("Calibri", 12, "bold"), borderwidth=2, relief="solid", minwidth=40, padding=5, anchor=tk.NW)
-
         self.display_plagiat()
 
     def display_plagiat(self):
@@ -70,15 +63,22 @@ class TableGui:
             plagiat = self.items[self.current_item_index]
             # Anzeige des Plagiats
             column = 1
-            print(plagiat[1][1])
             # Spalten
-            ttk.Label(self.inner_frame, text="Name", style="TableHead.TLabel").grid(row=0, column=0, sticky="nsew")
-            ttk.Label(self.inner_frame, text="Datei", style="TableHead.TLabel").grid(row=1, column=0, sticky="nsew")
-            ttk.Label(self.inner_frame, text="Code", style="TableHead.TLabel").grid(row=2, column=0, sticky="nsew")
+            ttk.Label(self.inner_frame, text="Name", background="white", foreground="black", padding=5,
+                      font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=0, column=0, sticky="nsew")
+            ttk.Label(self.inner_frame, text="Datei", background="white", foreground="black", padding=5,
+                      font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=1, column=0, sticky="nsew")
+            ttk.Label(self.inner_frame, text="Code", background="white", foreground="black", padding=5,
+                      font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=2, column=0, sticky="nsew")
+
             for student_infos in plagiat[1][1]:
-                ttk.Label(self.inner_frame, text=student_infos[0], style="Table.TLabel").grid(row=0, column=column, sticky="nsew")
-                ttk.Label(self.inner_frame, text=os.path.basename(student_infos[1]), style="Table.TLabel").grid(row=1, column=column, sticky="nsew")
-                ttk.Label(self.inner_frame, text=str(FileEditor.read_file(student_infos[1], lines=student_infos[2])), style="Table.TLabel").grid(row=2, column=column, sticky="nsew")
+                ttk.Label(self.inner_frame, text=student_infos[0], background="white", foreground="black", padding=5,
+                          font=("Calibri", 12), borderwidth=2, relief="solid").grid(row=0, column=column, sticky="nsew")
+                ttk.Label(self.inner_frame, text=os.path.basename(student_infos[1]), background="white",  padding=5,
+                          foreground="black", font=("Calibri", 12), borderwidth=2, relief="solid").grid(row=1, column=column, sticky="nsew")
+                ttk.Label(self.inner_frame, text=str(FileEditor.read_file(student_infos[1], lines=student_infos[2])),
+                          background="white", foreground="black", font=("Calibri", 12), borderwidth=2, padding=5,
+                          relief="solid", anchor="nw").grid(row=2, column=column, sticky="nsew")
                 column += 1
 
             self.root.columnconfigure(0, weight=1)
@@ -88,8 +88,6 @@ class TableGui:
             self.inner_frame.columnconfigure(list(range(column)), weight=1)
         else:
             self.create_auswertung()
-            print(f"{self.items_plagiat}")
-            print(self.data)
         self.root.update()
 
     def create_button_panel(self):
@@ -149,10 +147,12 @@ class TableGui:
         self.create_auswertung_gui()
 
     def create_auswertung_gui(self):
-        pass
+        self.btn_plagiat.grid_remove()
+        self.btn_unsicher.grid_remove()
+        self.btn_ok.grid_remove()
+        self.vergl_table.grid_remove()
+        auswertung_label = ttk.Label(self.root, text=self.auswertung, font=("Calibri", 12), anchor=tk.NW)
+        auswertung_label.grid(row=0, column=0, sticky="nsew")
 
     def create_auswertung_data(self):
-        pass
-
-
-# table = TableGui(FileEditor.load_auswertung_from_file("last_result"))
+        self.auswertung = "Auswertung"

@@ -1,5 +1,7 @@
 import ast
 import os
+import threading
+import tkinter
 from tkinter import messagebox
 import math
 import re
@@ -248,9 +250,9 @@ def plagscan(students_folder: str, gui: mainGUI):
 
     # 4. Ergebnisstruktur erstellen
     stats_list = create_stats(plagiat_dict)
-    print("\nAnzahl Plagiate:" + str(stats_list[1]))
-    print("Anzahl Studenten mit Plagiat:" + str(stats_list[2]))
-    print(str(stats_list[0]))
+    stats_text = "PlagScan abgeschlossen!\n\nAnzahl Plagiate: " + str(stats_list[1]) + \
+                             "\nAnzahl Studenten mit Plagiat: " + str(stats_list[2]) + "\n\n" + str(stats_list[0])
+    threading.Thread(target=mainGUI.display_msgbox, args=("PlagScan", stats_text)).start()
 
     # 5. Ergebnis speichern
     FileEditor.save_auswertung_to_file(plagiat_dict)
