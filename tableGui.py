@@ -59,6 +59,8 @@ class TableGui:
         canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
         canvas.bind("<Configure>", update_inner_frame)
         canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1 * (event.delta / 120)), "units"))
+        canvas.bind_all("<Button-4>", lambda event: canvas.xview_scroll(-1, "units"))
+        canvas.bind_all("<Button-5>", lambda event: canvas.xview_scroll(1, "units"))
 
         self.display_plagiat()
 
@@ -124,20 +126,21 @@ class TableGui:
         self.items_plagiat.append(self.items[self.current_item_index])
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
-        self.display_plagiat()  # Nächstes Plagiat anzeigen
+        self.create_table()  # Nächstes Plagiat anzeigen
+
 
     def on_unsicher_button_click(self):
         self.items_unsicher.append(self.items[self.current_item_index])  # Info speichern
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
-        self.display_plagiat()  # Nächstes Plagiat anzeigen
+        self.create_table()  # Nächstes Plagiat anzeigen
 
     def on_ok_button_click(self):
         # Aktuelles Plagiat löschen
         del self.data[self.items[self.current_item_index][1][0]]
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
-        self.display_plagiat()  # Nächstes Plagiat anzeigen
+        self.create_table()  # Nächstes Plagiat anzeigen
 
     def on_speichern_button_click(self):
         # Aktion für den Speichern-Button
