@@ -38,13 +38,17 @@ class TableGui:
         canvas.grid(row=0, column=0, sticky="nsew")
 
         # Scrollbars
-        yscrollbar = ttk.Scrollbar(self.vergl_table, orient="vertical", command=canvas.yview)
-        yscrollbar.grid(row=0, column=1, sticky="ns")
-        xscrollbar = ttk.Scrollbar(self.vergl_table, orient="horizontal", command=canvas.xview)
-        xscrollbar.grid(row=1, column=0, sticky="ew")
+        yscrollbar = ttk.Scrollbar(self.vergl_table, orient=tk.VERTICAL)
+        yscrollbar.grid(row=0, column=3, rowspan=3, sticky="ns")
+        xscrollbar = ttk.Scrollbar(self.vergl_table, orient=tk.HORIZONTAL)
+        xscrollbar.grid(row=3, column=0, columnspan=3, sticky="ew")
 
         # Canvas-Scrollbars-Konfiguration
         canvas.configure(yscrollcommand=yscrollbar.set, xscrollcommand=xscrollbar.set)
+
+        # Konfiguration der Scrollbars
+        yscrollbar.configure(command=canvas.yview)
+        xscrollbar.configure(command=canvas.xview)
 
         self.inner_frame = ttk.Frame(canvas)
         self.inner_frame.grid(sticky="nsew")
@@ -54,6 +58,7 @@ class TableGui:
 
         canvas.create_window((0, 0), window=self.inner_frame, anchor="nw")
         canvas.bind("<Configure>", update_inner_frame)
+        canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1 * (event.delta / 120)), "units"))
 
         self.display_plagiat()
 
