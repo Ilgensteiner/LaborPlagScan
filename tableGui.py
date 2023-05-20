@@ -1,8 +1,9 @@
 import os.path
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 import FileEditor
+import PlagiatScanner
 
 
 class TableGui:
@@ -24,6 +25,7 @@ class TableGui:
         self.root.configure(bg='#0a3055')
 
         self.create_table()
+        self.display_plagiat()
         self.create_button_panel()
 
         self.root.mainloop()
@@ -61,8 +63,6 @@ class TableGui:
         canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1 * (event.delta / 120)), "units"))
         canvas.bind_all("<Button-4>", lambda event: canvas.xview_scroll(-1, "units"))
         canvas.bind_all("<Button-5>", lambda event: canvas.xview_scroll(1, "units"))
-
-        self.display_plagiat()
 
     def display_plagiat(self):
         # Anzeige des Plagiats
@@ -112,14 +112,14 @@ class TableGui:
         self.btn_unsicher = ttk.Button(button_panel, text="Unsicher", command=self.on_unsicher_button_click)
         self.btn_ok = ttk.Button(button_panel, text="OK", command=self.on_ok_button_click)
         self.btn_speichern = ttk.Button(button_panel, text="Speichern", command=self.on_speichern_button_click)
-        self.btn_exportieren = ttk.Button(button_panel, text="Exportieren", command=self.on_exportieren_button_click)
+        self.btn_auswertung = ttk.Button(button_panel, text="Auswertung", command=self.on_auswertung_button_click)
 
         # Buttons positionieren
         self.btn_plagiat.grid(row=0, column=0, sticky="w")
         self.btn_unsicher.grid(row=0, column=1, sticky="w")
         self.btn_ok.grid(row=0, column=2, sticky="w")
         self.btn_speichern.grid(row=0, column=3, sticky="e")
-        self.btn_exportieren.grid(row=0, column=4, sticky="e")
+        self.btn_auswertung.grid(row=0, column=4, sticky="e")
 
     def on_plagiat_button_click(self):
         # Info speichern
@@ -127,13 +127,14 @@ class TableGui:
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
         self.create_table()  # Nächstes Plagiat anzeigen
-
+        self.display_plagiat()
 
     def on_unsicher_button_click(self):
         self.items_unsicher.append(self.items[self.current_item_index])  # Info speichern
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
         self.create_table()  # Nächstes Plagiat anzeigen
+        self.display_plagiat()
 
     def on_ok_button_click(self):
         # Aktuelles Plagiat löschen
@@ -141,14 +142,35 @@ class TableGui:
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
         self.create_table()  # Nächstes Plagiat anzeigen
+        self.display_plagiat()
 
     def on_speichern_button_click(self):
         # Aktion für den Speichern-Button
         FileEditor.save_auswertung_to_file(self.data)
 
-    def on_exportieren_button_click(self):
+    def on_auswertung_button_click(self):
+        def on_button_click(answer):
+            if answer == "Anzeigen":
+                self.create_auswertung()
+            elif answer == "Exportieren":
+                # Führe hier die Funktion für "Exportieren" aus
+                stats = PlagiatScanner.create_stats(self.data)
+            else:
+                # Abbruch der Funktion
+                pass
+            root.destroy()
+
         # Aktion für den Exportieren-Button
-        pass
+        root = tk.Tk()
+        label = tk.Label(root, text="Die Auswertung wird erstellt, was möchten Sie tun?")
+        label.pack()
+        button1 = tk.Button(root, text="Anzeigen", command=lambda: on_button_click("Anzeigen"))
+        button1.pack()
+        button2 = tk.Button(root, text="Exportieren", command=lambda: on_button_click("Exportieren"))
+        button2.pack()
+        button3 = tk.Button(root, text="Abbrechen", command=lambda: on_button_click("Abbrechen"))
+        button3.pack()
+        root.mainloop()
 
     def create_auswertung(self):
         self.create_auswertung_data()
@@ -158,9 +180,23 @@ class TableGui:
         self.btn_plagiat.grid_remove()
         self.btn_unsicher.grid_remove()
         self.btn_ok.grid_remove()
-        self.vergl_table.grid_remove()
-        auswertung_label = ttk.Label(self.root, text=self.auswertung, font=("Calibri", 12), anchor=tk.NW)
+        self.btn_speichern.grid_remove()
+        self.create_table()
+        auswertung_label = ttk.Label(self.inner_frame, text=self.auswertung, font=("Calibri", 12), anchor=tk.NW)
         auswertung_label.grid(row=0, column=0, sticky="nsew")
 
     def create_auswertung_data(self):
-        self.auswertung = "Auswertung"
+        stats = PlagiatScanner.create_stats(self.data)
+        self.auswertung = "------Auswertung------\n\n"
+        self.auswertung += "Anzahl ausgewerteter Code-Blöcke: " + str(stats[0]) + "\n"
+        self.auswertung += "Anzahl der Plagiate: " + str(len(self.items_plagiat)) + "\n"
+        self.auswertung += "Anzahl der unsicheren Plagiate: " + str(len(self.items_unsicher)) + "\n\n"
+        self.auswertung += "Auswertung Studenten:\n"
+        self.auswertung += "Anzahl der Studenten: " + str(stats[1]) + "\n"
+        for student in stats[2]:
+            self.auswertung += student + ": " + str(stats[2][student]) + "\n"
+
+        self.auswertung += "\n\nStudenten-Paare:\n"
+        for student in stats[3]:
+            self.auswertung += student + ": " + str(stats[3][student]) + "\n"
+

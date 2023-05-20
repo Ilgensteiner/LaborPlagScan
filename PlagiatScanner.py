@@ -181,7 +181,6 @@ def compare_files(file1_path: str, file2_path: str) -> list:
 
     result_code_list = []
     for plagiat in plag_list:
-        # 28 plag
         result_code_list.append([get_plagcode_from_filelist(datei1_lines, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
 
     return result_code_list
@@ -189,7 +188,8 @@ def compare_files(file1_path: str, file2_path: str) -> list:
 
 def create_stats(plag_dict: dict) -> list:
     """Creates a list with the stats for the given dictionary\n
-    [Stud_dict, Plag_Count, Stud_Count]"""
+    [Plag_Count, Stud_Count, Stud_dict]"""
+    # Zählen wie oft ein Student plagiiert hat
     stud_plag_count = {}
     for key, value in plag_dict.items():
         for element in value:
@@ -197,7 +197,25 @@ def create_stats(plag_dict: dict) -> list:
                 stud_plag_count[element[0]] = 0
             stud_plag_count[element[0]] += 1
 
-    return [stud_plag_count, len(plag_dict), len(stud_plag_count)]
+    # zählen von allen Studenten Paaren
+    stud_pair_dict = {}
+    for key, value in plag_dict.items():
+        students = []
+        for element in value:
+            students.append(element[0])
+        students.sort()
+        for i, student1 in enumerate(students):
+            for student2 in students[i+1:]:
+                stud_pair = student1 + " - " + student2
+                if stud_pair not in stud_pair_dict:
+                    stud_pair_dict[stud_pair] = 0
+                stud_pair_dict[stud_pair] += 1
+
+    # dict sorted by value
+    stud_plag_count = {k: v for k, v in sorted(stud_plag_count.items(), key=lambda item: item[1], reverse=True)}
+    stud_pair_dict = {k: v for k, v in sorted(stud_pair_dict.items(), key=lambda item: item[1], reverse=True)}
+
+    return [len(plag_dict), len(stud_plag_count), stud_plag_count, stud_pair_dict]
 
 
 def plagscan(students_folder: str, gui: mainGUI):
@@ -250,8 +268,8 @@ def plagscan(students_folder: str, gui: mainGUI):
 
     # 4. Ergebnisstruktur erstellen
     stats_list = create_stats(plagiat_dict)
-    stats_text = "PlagScan abgeschlossen!\n\nAnzahl Plagiate: " + str(stats_list[1]) + \
-                             "\nAnzahl Studenten mit Plagiat: " + str(stats_list[2]) + "\n\n" + str(stats_list[0])
+    stats_text = "PlagScan abgeschlossen!\n\nAnzahl Plagiate: " + str(stats_list[0]) + \
+                             "\nAnzahl Studenten mit Plagiat: " + str(stats_list[1]) + "\n\n" + str(stats_list[2])
     threading.Thread(target=mainGUI.display_msgbox, args=("PlagScan", stats_text)).start()
 
     # 5. Ergebnis speichern
