@@ -97,12 +97,12 @@ def read_file(filepath, lines=None):
             content_parts = []
             start, end = lines
             # before
-            for i in content[max(start-5, 0):start-1]:
+            for i in content[max(start-5, 0):max(start-1, 0)]:
                 content_parts.append(i)
             content_parts.append("\n\t\t------PLAGIAT START------\n\n")
 
             # plagiat
-            for i in content[start-1:end]:
+            for i in content[max(start-1, 0):end]:
                 content_parts.append(i)
 
             # after
