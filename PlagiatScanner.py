@@ -249,10 +249,25 @@ def plagscan(students_folder: str, gui: mainGUI):
                     for plagiat_code in plagiat:
                         if plagiat_code[0] not in plagiat_dict:
                             plagiat_dict[plagiat_code[0]] = []
-                        # plagiat_dict[plagiat_code[0]].append([student1, file1, [plagiat_code[1], plagiat_code[2]]])
-                        # plagiat_dict[plagiat_code[0]].append([student2, file1, [plagiat_code[3], plagiat_code[4]]])
-                        plagiat_dict[plagiat_code[0]].append([student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
-                        plagiat_dict[plagiat_code[0]].append([student2, student_dict[student2][file1], [plagiat_code[3], plagiat_code[4]]])
+                            plagiat_dict[plagiat_code[0]].append(
+                                [student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
+                            plagiat_dict[plagiat_code[0]].append(
+                                [student2, student_dict[student2][file1], [plagiat_code[3], plagiat_code[4]]])
+                        else:
+                            stud1_already_in_list = False
+                            stud2_already_in_list = False
+                            for stud_plag in plagiat_dict[plagiat_code[0]]:
+                                if stud_plag[0] == student1:
+                                    stud1_already_in_list = True
+                                elif stud_plag[0] == student2:
+                                    stud2_already_in_list = True
+
+                            if not stud1_already_in_list:
+                                plagiat_dict[plagiat_code[0]].append(
+                                    [student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
+                            if not stud2_already_in_list:
+                                plagiat_dict[plagiat_code[0]].append(
+                                    [student2, student_dict[student2][file1], [plagiat_code[3], plagiat_code[4]]])
                 else:
                     for file2 in student_dict[student2]:
                         # plagiat = [[CODE, Stud1-ZeileStart, Stud1-ZeileEnde, Stud2-ZeileStart, Stud2-ZeileEnde], ...]
@@ -260,10 +275,21 @@ def plagscan(students_folder: str, gui: mainGUI):
                         for plagiat_code in plagiat:
                             if plagiat_code[0] not in plagiat_dict:
                                 plagiat_dict[plagiat_code[0]] = []
-                            # plagiat_dict[plagiat_code[0]].append([student1, file1, [plagiat_code[1], plagiat_code[2]]])
-                            # plagiat_dict[plagiat_code[0]].append([student2, file2, [plagiat_code[3], plagiat_code[4]]])
-                            plagiat_dict[plagiat_code[0]].append([student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
-                            plagiat_dict[plagiat_code[0]].append([student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
+                                plagiat_dict[plagiat_code[0]].append([student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
+                                plagiat_dict[plagiat_code[0]].append([student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
+                            else:
+                                stud1_already_in_list = False
+                                stud2_already_in_list = False
+                                for stud_plag in plagiat_dict[plagiat_code[0]]:
+                                    if stud_plag[0] == student1:
+                                        stud1_already_in_list = True
+                                    elif stud_plag[0] == student2:
+                                        stud2_already_in_list = True
+
+                                if not stud1_already_in_list:
+                                    plagiat_dict[plagiat_code[0]].append([student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
+                                if not stud2_already_in_list:
+                                    plagiat_dict[plagiat_code[0]].append([student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
             gui.update_progressbar_value(1)
 
     # 4. Ergebnisstruktur erstellen
