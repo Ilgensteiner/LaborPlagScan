@@ -1,1 +1,1 @@
-['', 'this.x = x;', 'Regex:(protected|private|public)\s(static\s)?(String|double|float|boolean)\s(x;)']
+['', 'this.x = x;', 'Regex:(protected|private|public)\s(static\s)?(String|double|float|boolean|int)\s(x;)']
