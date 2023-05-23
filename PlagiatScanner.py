@@ -1,7 +1,6 @@
 import ast
 import os
 import threading
-import tkinter
 from tkinter import messagebox
 import math
 import re
@@ -129,12 +128,27 @@ def get_plagcode_from_filelist(file_as_list: list, plag_result: list) -> str:
 
 def filter_lines(file_as_list: list) -> list:
     """Filters all lines from a file that contain a string from the filter.txt file"""
+    regexpattern_list = []
+    regexpattern_list_pre = []
+    filter_strings = []
     with open('filter.txt', 'r') as f:
-        exclude_strings = ast.literal_eval(f.read())
+        filter_list = ast.literal_eval(f.read())
+
+    for filter_str in filter_list:
+        readed_filter = filter_str.split(":")
+        if readed_filter[0] == "Regex":
+            regexpattern_list_pre.append(readed_filter[1])
+        else:
+            filter_strings.append(filter_str)
+
     filtered_lines = []
+    for regex_code in regexpattern_list_pre:
+        regexpattern_list.append(re.compile(regex_code))
+
     for line in file_as_list:
-        if not any(exclude_string in line for exclude_string in exclude_strings):
+        if not any(exclude_string in line for exclude_string in filter_strings) and not any(regex_pattern.search(line[1]) for regex_pattern in regexpattern_list):
             filtered_lines.append(line)
+
     return filtered_lines
 
 
