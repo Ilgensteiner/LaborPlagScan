@@ -201,8 +201,8 @@ def compare_files(file1_path: str, file2_path: str) -> list:
 
 
 def create_stats(plag_dict: dict) -> list:
-    """Creates a list with the stats for the given dictionary\n
-    [Plag_Count, Stud_Count, Stud_dict]"""
+    """Creates a list with the stats for the given dictionary
+        :return [Plag_Count, Stud_Count, Stud_dict]"""
     # Zählen wie oft ein Student plagiiert hat
     stud_plag_count = {}
     for key, value in plag_dict.items():
