@@ -205,7 +205,7 @@ class TableGui:
         button_panel.columnconfigure(1, weight=1)
 
         # Buttons erstellen
-        btn_exsave = ttk.Button(button_panel, text="Export Savefile")
+        btn_exsave = ttk.Button(button_panel, text="Export Savefile", command=self.on_export_savefile_button)
         btn_expdf = ttk.Button(button_panel, text="Export as PDF", command=lambda: self.on_export_table_button(save_as="pdf"))
 
         # Buttons positionieren
@@ -357,6 +357,9 @@ class TableGui:
 
     def on_student_button(self, filter_list):
         TableGui(self.data, filter_list)
+
+    def on_export_savefile_button(self):
+        FileEditor.save_auswertung_to_file(self.data, None, "Auswertung")
 
     def on_export_table_button(self, save_as="pdf"):
         data = []
