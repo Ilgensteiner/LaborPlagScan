@@ -57,6 +57,12 @@ class GUI:
         if last_save is not None:
             self.create_open_result_button(last_save)
 
+        self.result_from_button = tk.Button(self.root, text="🔽", command=lambda: self.open_table_gui())
+        self.result_from_button.grid(row=5, column=2, pady=10, sticky="w")
+        self.result_from_button.config(width=2, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
+        self.result_from_button.bind("<Enter>", on_enter)
+        self.result_from_button.bind("<Leave>", on_leave)
+
         self.name_textline = tk.Button(self.root, text="© 2023 by Erik Ilgenstein", bg="#0a3055", fg="grey",
                                        font=("Calibri", 10), border=0, command=self.hidden_button_click,
                                        activebackground="#0a3055", activeforeground="grey", takefocus=0)
@@ -84,14 +90,14 @@ class GUI:
     def create_open_result_button(self, filename: str):
         if filename is None:
             filename = FileEditor.get_last_modified_file()
-        self.result_button = tk.Button(self.root, text=f"Open {filename}", command=self.open_table_gui)
+        self.result_button = tk.Button(self.root, text=f"Open {filename}", command=lambda: self.open_table_gui(filename))
         self.result_button.grid(row=5, column=1, pady=10, sticky="ew")
         self.result_button.config(width=20, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
         self.result_button.bind("<Enter>", on_enter)
         self.result_button.bind("<Leave>", on_leave)
 
-    def open_table_gui(self):
-        table = tableGui.TableGui(FileEditor.load_auswertung_from_file("last_result"))
+    def open_table_gui(self, filename=None):
+        table = tableGui.TableGui(FileEditor.load_auswertung_from_file(filename))
 
     def set_progressbar_start(self, value: int):
         self.progressbar['maximum'] = value

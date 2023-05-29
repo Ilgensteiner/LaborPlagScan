@@ -1,5 +1,6 @@
 import json
 import os
+import tkinter
 import zipfile
 import tkinter as tk
 from tkinter import filedialog
@@ -83,9 +84,12 @@ def save_auswertung_to_file(d: dict, path="result/", filename="last_result"):
         json.dump(d, f)
 
 
-def load_auswertung_from_file(filename: str) -> dict:
-    # Erstelle den Pfad zur Datei im Ordner "result"
-    filepath = f"result/{filename}.json"
+def load_auswertung_from_file(filename=None) -> dict:
+    if filename is None:
+        filepath = tkinter.filedialog.askopenfilename(initialdir="/", title="Select file")
+    else:
+        # Erstelle den Pfad zur Datei im Ordner "result"
+        filepath = f"result/{filename}.json"
 
     # Öffne die Datei und lese das dict aus
     with open(filepath, "r") as file:
