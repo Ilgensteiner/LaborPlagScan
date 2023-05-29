@@ -21,7 +21,8 @@ java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch"
                ":", ",", "+", "-", "*", "%", "++", "--", "==", "!=", ">", "<", ">=", "<=", "&&", "||", "!", "&",
                "|", "^", "~", "<<", ">>", ">>>", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", ">>>=",
                "?", "Main", "main", "args", "array", "temp", "Exception", "printStackTrace", "getMessage", "abstrakt",
-               "@override", "@Override", "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize", "getClass",
+               "@override", "@Override", "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize",
+               "getClass",
                "IllegalArgumentException"}
 
 
@@ -146,7 +147,8 @@ def filter_lines(file_as_list: list) -> list:
         regexpattern_list.append(re.compile(regex_code))
 
     for line in file_as_list:
-        if not any(exclude_string in line for exclude_string in filter_strings) and not any(regex_pattern.search(line[1]) for regex_pattern in regexpattern_list):
+        if not any(exclude_string in line for exclude_string in filter_strings) and not any(
+                regex_pattern.search(line[1]) for regex_pattern in regexpattern_list):
             filtered_lines.append(line)
 
     return filtered_lines
@@ -185,7 +187,7 @@ def compare_files(file1_path: str, file2_path: str) -> list:
                 i += 1
                 if i >= len(datei1_lines):
                     if count >= 5:
-                        plag_list.append([start_datei1, datei1_lines[i-1][0], start_datei2, datei2_lines[j][0]])
+                        plag_list.append([start_datei1, datei1_lines[i - 1][0], start_datei2, datei2_lines[j][0]])
                     break
             else:
                 if count >= 5:
@@ -195,7 +197,8 @@ def compare_files(file1_path: str, file2_path: str) -> list:
 
     result_code_list = []
     for plagiat in plag_list:
-        result_code_list.append([get_plagcode_from_filelist(datei1_lines, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
+        result_code_list.append(
+            [get_plagcode_from_filelist(datei1_lines, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
 
     return result_code_list
 
@@ -219,7 +222,7 @@ def create_stats(plag_dict: dict) -> list:
             students.append(element[0])
         students.sort()
         for i, student1 in enumerate(students):
-            for student2 in students[i+1:]:
+            for student2 in students[i + 1:]:
                 stud_pair = student1 + " - " + student2
                 if stud_pair not in stud_pair_dict:
                     stud_pair_dict[stud_pair] = 0
@@ -234,15 +237,13 @@ def create_stats(plag_dict: dict) -> list:
 
 def plagscan(students_folder: str, gui: mainGUI):
     """Scans all files in the given folder for plagiarism"""
-    # 1. Festlegen der Struktur für das Vergleichsergebnis
-    results = {}
-
-    # 2. Sammeln aller Java-Dateien für jeden Studenten
+    # 1. Sammeln aller Java-Dateien für jeden Studenten
     student_folders_list = os.listdir(students_folder)
     gui.set_progressbar_start(len(student_folders_list))
     gui.info_textline.config(text="Files werden gesammelt...")
     student_dict = {}
 
+    # 2. Suche nach Java-Dateien
     for student_folder in student_folders_list:
         student_files_dict = find_java_files(os.path.join(students_folder, student_folder))
         if len(student_files_dict) == 0:
@@ -289,8 +290,10 @@ def plagscan(students_folder: str, gui: mainGUI):
                         for plagiat_code in plagiat:
                             if plagiat_code[0] not in plagiat_dict:
                                 plagiat_dict[plagiat_code[0]] = []
-                                plagiat_dict[plagiat_code[0]].append([student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
-                                plagiat_dict[plagiat_code[0]].append([student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
+                                plagiat_dict[plagiat_code[0]].append(
+                                    [student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
+                                plagiat_dict[plagiat_code[0]].append(
+                                    [student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
                             else:
                                 stud1_already_in_list = False
                                 stud2_already_in_list = False
@@ -301,15 +304,17 @@ def plagscan(students_folder: str, gui: mainGUI):
                                         stud2_already_in_list = True
 
                                 if not stud1_already_in_list:
-                                    plagiat_dict[plagiat_code[0]].append([student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
+                                    plagiat_dict[plagiat_code[0]].append(
+                                        [student1, student_dict[student1][file1], [plagiat_code[1], plagiat_code[2]]])
                                 if not stud2_already_in_list:
-                                    plagiat_dict[plagiat_code[0]].append([student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
+                                    plagiat_dict[plagiat_code[0]].append(
+                                        [student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
             gui.update_progressbar_value(1)
 
     # 4. Ergebnisstruktur erstellen
     stats_list = create_stats(plagiat_dict)
     stats_text = "PlagScan abgeschlossen!\n\nAnzahl Plagiate: " + str(stats_list[0]) + \
-                             "\nAnzahl Studenten mit Plagiat: " + str(stats_list[1]) + "\n\n" + str(stats_list[2])
+                 "\nAnzahl Studenten mit Plagiat: " + str(stats_list[1]) + "\n\n" + str(stats_list[2])
     threading.Thread(target=mainGUI.display_msgbox, args=("PlagScan", stats_text)).start()
 
     # 5. Ergebnis speichern

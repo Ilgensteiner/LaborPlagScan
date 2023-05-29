@@ -3,6 +3,11 @@ import os
 import zipfile
 import tkinter as tk
 from tkinter import filedialog
+import reportlab.lib.pagesizes as pagesizes
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
 
 import mainGUI
 
@@ -111,3 +116,108 @@ def read_file(filepath, lines=None):
                 content_parts.append(i)
             return ''.join(content_parts)
         return ''.join(content)
+
+
+def table_to_pdf_export(savepath: str, data: list):
+    print(data)
+    # Erzeugen einer temporären PDF-Datei
+    temp_filename = 'temp.pdf'
+
+    # Erzeugen der Tabelle
+    table = Table(data)
+
+    # Definieren des Tabellenstils
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 2),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 8),
+        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+    ])
+
+    # Anwenden des Tabellenstils auf die Tabelle
+    table.setStyle(style)
+
+    # Erzeugen des PDF-Dokuments mit angepasster Breite
+    doc = SimpleDocTemplate(temp_filename, pagesize=pagesizes.A4, rightMargin=10, leftMargin=10, topMargin=5, bottomMargin=5)
+
+    # Inhalt zum PDF-Dokument hinzufügen
+    elements = []
+    elements.append(table)
+    doc.build(elements)
+
+    # Verschieben der temporären PDF-Datei zur endgültigen Datei
+    import shutil
+    shutil.move(temp_filename, savepath)
+
+    print(f"Die PDF-Datei '{savepath}' wurde erfolgreich erstellt.")
+
+
+def table_to_xlsx_export(savepath: str, data: list):
+    """
+    Exports the data to an xlsx file
+    :param savepath: savepath of the xlsx file as string
+    :param data: Tabledata as list of lists
+    """
+
+    def get_table_width(data):
+        width_multiplyer: float = 0.83
+        height_multiplyer: float = 14.8
+        table_width = []
+        table_height = [0 for pos in range(len(data))]
+        for data_column, col in enumerate(data[0]):
+            column_width = 0
+            column_width_sum, column_width_summanden = 0, 0
+            for row_nr, data_row in enumerate(data):
+                data_cell_inhalt = str(data_row[data_column]).split("\n")
+                table_height[row_nr] = max(table_height[row_nr], len(data_cell_inhalt))
+                for i in data_cell_inhalt:
+                    column_width_sum += len(i)
+                    column_width_summanden += 1
+                    column_width = max(column_width, len(i))
+            column_width = ((column_width_sum / column_width_summanden) + column_width) / 2
+            table_width.append(column_width)
+
+        for height_pos in range(len(table_height)):
+            table_height[height_pos] = max(16, table_height[height_pos] * height_multiplyer)
+
+        for width_pos in range(len(table_width)):
+            table_width[width_pos] = max(16, table_width[width_pos] * width_multiplyer)
+
+        return [table_width, table_height]
+
+    # tablesize = []
+    # [Spalt-BreiteA, Spalt-BreiteB, Spalt-BreiteC, ...]
+    # [Row-Height1, Row-Height2, Row-Height3, ...]
+    tablesize = get_table_width(data)
+    workbook = Workbook()
+    sheet = workbook.active
+
+    # Daten in das Tabellenblatt einfügen
+    row_count = 1
+    for row_data in data:
+        row = []
+        for cell_data in row_data:
+            column_count = len(row) + 1
+            cell = sheet.cell(row=row_count, column=column_count)
+            cell.value = cell_data
+            cell.alignment = cell.alignment.copy(wrapText=True)  # Umbrüche beibehalten
+            row.append(cell)
+        row_count += 1
+
+    # Spaltenbreite anpassen
+    for col_nr, column in enumerate(sheet.columns):
+        column_letter = get_column_letter(column[0].column)
+        sheet.column_dimensions[column_letter].width = tablesize[0][col_nr]
+
+    for i in range(0, sheet.max_row):
+        sheet.row_dimensions[i + 1].height = tablesize[1][i]
+
+    workbook.save(savepath)
+

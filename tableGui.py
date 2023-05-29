@@ -1,9 +1,8 @@
 import os.path
 import re
-import time
 import tkinter as tk
-from tkinter import ttk
-
+from tkinter import ttk, filedialog, messagebox
+from tkinter.ttk import Frame
 import FileEditor
 import PlagiatScanner
 
@@ -25,14 +24,19 @@ def filter_dict(data: dict, filters: list):
             result.append([pos, filtered_items])
             filtered_items = []
 
-    print(f"{filters}")
-    print(f"{result}")
-
     return result
 
 
 class TableGui:
+    inner_frame: Frame
+
     def __init__(self, data, stud_filter=None):
+        self.btn_speichern = None
+        self.btn_auswertung = None
+        self.btn_ok = None
+        self.btn_unsicher = None
+        self.btn_plagiat = None
+        self.vergl_table = None
         self.auswertung_label = None
         self.data = data
         self.items = []
@@ -43,7 +47,6 @@ class TableGui:
             for i, item in enumerate(data.items()):
                 self.items.append([i, item])
         else:
-            # TODO: Testen
             self.items = filter_dict(data, stud_filter)
 
         self.current_item_index = 0  # Aktueller Index im Datensatz
@@ -58,9 +61,8 @@ class TableGui:
             self.display_plagiat()
             self.create_button_panel_plagiat()
         else:
-            # TODO: Filter Ansicht
             self.display_stud_vergleich(stud_filter)
-            self.create_button_panel_plagiat()
+            self.create_button_panel_einzelauswertung()
 
         self.root.mainloop()
 
@@ -157,7 +159,6 @@ class TableGui:
 
                 height = int(textfeld.index('end-1c').split('.')[0])
                 max_line_length = max([len(line.strip("\n\t\r")) for line in textfeld.get("1.0", "end-1c").split("\n")])
-                print(max_line_length)
                 textfeld.configure(state="disabled", yscrollcommand=lambda *args: None,
                                    xscrollcommand=lambda *args: None, height=height, width=int(max_line_length*0.9), padx=5)
                 for plag in stud_files[stud][file]:
@@ -196,8 +197,38 @@ class TableGui:
         self.btn_speichern.grid(row=0, column=3, sticky="e")
         self.btn_auswertung.grid(row=0, column=4, sticky="e")
 
+    def create_button_panel_auswertung(self):
+        # TODO: Export Save noch einfügen
+        # Button-Panel erstellen
+        button_panel = ttk.Frame(self.root)
+        button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
+        button_panel.columnconfigure(1, weight=1)
+
+        # Buttons erstellen
+        btn_exsave = ttk.Button(button_panel, text="Export Savefile")
+        btn_expdf = ttk.Button(button_panel, text="Export as PDF", command=lambda: self.on_export_table_button(save_as="pdf"))
+
+        # Buttons positionieren
+        btn_exsave.grid(row=0, column=0, sticky="w")
+        btn_expdf.grid(row=0, column=1, sticky="e")
+
+    def create_button_panel_einzelauswertung(self):
+        # Todo: Kein Plagiat noch einfügen
+        # Button-Panel erstellen
+        button_panel = ttk.Frame(self.root)
+        button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
+        button_panel.columnconfigure(1, weight=1)
+
+        # Buttons erstellen
+        btn_ok = ttk.Button(button_panel, text="kein Plagiat")
+        btn_expdf = ttk.Button(button_panel, text="Export as Excel", command=lambda: self.on_export_table_button(save_as="xlsx"))
+
+        # Buttons positionieren
+        btn_ok.grid(row=0, column=0, sticky="w")
+        btn_expdf.grid(row=0, column=1, sticky="e")
+
     def on_plagiat_button_click(self):
-        # Info speichern
+        # Information speichern
         self.items_plagiat.append(self.items[self.current_item_index])
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
@@ -205,7 +236,7 @@ class TableGui:
         self.display_plagiat()
 
     def on_unsicher_button_click(self):
-        self.items_unsicher.append(self.items[self.current_item_index])  # Info speichern
+        self.items_unsicher.append(self.items[self.current_item_index])  # Information speichern
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
         self.create_table_plag()  # Nächstes Plagiat anzeigen
@@ -239,6 +270,8 @@ class TableGui:
         auswertung_gui.grid(row=0, column=0, sticky="nsew")
         auswertung_gui.columnconfigure(0, weight=1)
         auswertung_gui.rowconfigure(0, weight=1)
+
+        self.create_button_panel_auswertung()
 
         # Canvas erstellen
         canvas = tk.Canvas(auswertung_gui)
@@ -319,8 +352,36 @@ class TableGui:
                       padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
                       relief="solid", command=lambda student_filter=student.split(" - "): self.on_student_button(student_filter)).grid(row=row, column=0, sticky="ew")
 
+        self.inner_frame = data_frame
         self.root.update()
 
     def on_student_button(self, filter_list):
-        print(f"{filter_list}")
         TableGui(self.data, filter_list)
+
+    def on_export_table_button(self, save_as="pdf"):
+        data = []
+        row = 0
+        while self.inner_frame.grid_slaves(row=row, column=0) != []:
+            column = 0
+            row_content = []
+            while self.inner_frame.grid_slaves(row=row, column=column) != []:
+                grid_widget = self.inner_frame.grid_slaves(row=row, column=column)[0]
+                if grid_widget.widgetName == "text":
+                    row_content.append(grid_widget.get("1.0", "end-1c"))
+                else:
+                    row_content.append(grid_widget.cget("text"))
+                column += 1
+            data.append(row_content)
+            row += 1
+
+        if save_as == "pdf":
+            if data[0] == [""]:
+                data.pop(0)
+            export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file", initialfile="Plagiat " + "-".join(data[0]).strip('\t\n') + ".pdf", filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
+            FileEditor.table_to_pdf_export(export_path, data)
+        elif save_as == "xlsx":
+            export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file", initialfile="Plagiat " + "-".join(data[0]) + ".xlsx", filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
+            FileEditor.table_to_xlsx_export(export_path, data)
+        else:
+            Exception("Export format not given/supported")
+            messagebox.showerror("Export Error", "Export format not given/supported")
