@@ -160,9 +160,10 @@ class TableGui:
                 height = int(textfeld.index('end-1c').split('.')[0])
                 max_line_length = max([len(line.strip("\n\t\r")) for line in textfeld.get("1.0", "end-1c").split("\n")])
                 textfeld.configure(state="disabled", yscrollcommand=lambda *args: None,
-                                   xscrollcommand=lambda *args: None, height=height, width=int(max_line_length*0.9), padx=5)
+                                   xscrollcommand=lambda *args: None, height=height, width=int(max_line_length * 0.9),
+                                   padx=5)
                 for plag in stud_files[stud][file]:
-                    textfeld.tag_add("red", str(plag[0]+1) + ".0", str(plag[1]+1) + ".599")
+                    textfeld.tag_add("red", str(plag[0] + 1) + ".0", str(plag[1] + 1) + ".599")
                 j += 1
 
         self.root.columnconfigure(0, weight=1)
@@ -198,7 +199,6 @@ class TableGui:
         self.btn_auswertung.grid(row=0, column=4, sticky="e")
 
     def create_button_panel_auswertung(self):
-        # TODO: Export Save noch einfügen
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
         button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
@@ -206,26 +206,25 @@ class TableGui:
 
         # Buttons erstellen
         btn_exsave = ttk.Button(button_panel, text="Export Savefile", command=self.on_export_savefile_button)
-        btn_expdf = ttk.Button(button_panel, text="Export as PDF", command=lambda: self.on_export_table_button(save_as="pdf"))
+        btn_expdf = ttk.Button(button_panel, text="Export as PDF",
+                               command=lambda: self.on_export_table_button(save_as="pdf"))
 
         # Buttons positionieren
         btn_exsave.grid(row=0, column=0, sticky="w")
         btn_expdf.grid(row=0, column=1, sticky="e")
 
     def create_button_panel_einzelauswertung(self):
-        # Todo: Kein Plagiat noch einfügen
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
         button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
         button_panel.columnconfigure(1, weight=1)
 
         # Buttons erstellen
-        btn_ok = ttk.Button(button_panel, text="kein Plagiat")
-        btn_expdf = ttk.Button(button_panel, text="Export as Excel", command=lambda: self.on_export_table_button(save_as="xlsx"))
+        btn_expdf = ttk.Button(button_panel, text="Export as Excel",
+                               command=lambda: self.on_export_table_button(save_as="xlsx"))
 
         # Buttons positionieren
-        btn_ok.grid(row=0, column=0, sticky="w")
-        btn_expdf.grid(row=0, column=1, sticky="e")
+        btn_expdf.grid(row=0, column=0, sticky="e")
 
     def on_plagiat_button_click(self):
         # Information speichern
@@ -285,12 +284,12 @@ class TableGui:
 
         # Platzhalter-Label
         placeholder_label = ttk.Label(data_frame, text="", background="white", foreground="white", padding=0,
-                                      font=("Calibri", 1), borderwidth=0, relief="flat", width=self.root.winfo_width())
-        placeholder_label.grid(row=0, column=0, sticky="nsew")
+                                      font=("Calibri", 1), borderwidth=0, relief="flat", width=self.root.winfo_width()-25)
+        placeholder_label.grid(row=0, column=0,  columnspan=3, sticky="nsew")
 
         def update_inner_frame(event):
             canvas.configure(scrollregion=canvas.bbox("all"))
-            placeholder_label.configure(width=self.root.winfo_width())
+            placeholder_label.configure(width=self.root.winfo_width()-25)
 
         canvas.create_window((0, 0), window=data_frame, anchor="nw")
         canvas.bind("<Configure>", update_inner_frame, False)
@@ -310,50 +309,118 @@ class TableGui:
         # DATA
         tk.Label(data_frame, text="\tÜbersicht", background="white", foreground="black", padx=5, pady=5,
                  justify="center",
-                 font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid", anchor="w").grid(row=1, column=0,
-                                                                                                 sticky="ew")
+                 font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid", anchor="w").grid(row=1, column=0, columnspan=3, sticky="ew")
         tk.Label(data_frame, text="Anzahl ausgewerteter Code-Blöcke: " + str(stats[0]), background="white",
                  foreground="black", padx=5, pady=5, justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=2, column=0, sticky="ew")
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=2, column=0, columnspan=3, sticky="ew")
         tk.Label(data_frame, text="Anzahl der Plagiate: " + str(len(self.items_plagiat)), background="white",
                  foreground="black", padx=5, pady=5, justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=3, column=0, sticky="ew")
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=3, column=0, columnspan=3, sticky="ew")
         tk.Label(data_frame, text="Anzahl der unsicheren Plagiate: " + str(len(self.items_unsicher)),
                  background="white", foreground="black", padx=5, pady=5, justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=4, column=0, sticky="ew")
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=4, column=0, columnspan=3, sticky="ew")
 
         tk.Label(data_frame, text="\tAuswertung Studenten:", background="white", foreground="black", padx=5, pady=5,
                  justify="center",
-                 font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid", anchor="w").grid(row=5, column=0,
+                 font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid", anchor="w").grid(row=5, column=0, columnspan=3,
                                                                                                  sticky="ew")
         tk.Label(data_frame, text="Anzahl der Studenten mit Plagiaten: " + str(stats[1]), background="white",
                  foreground="black",
                  padx=5, pady=5, justify="left",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=6, column=0, sticky="ew")
-        tk.Label(data_frame, text="\tGefundene Plagiate pro Student", background="white", foreground="black", padx=5, pady=5,
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=6, column=0, columnspan=3, sticky="ew")
+        tk.Label(data_frame, text="\tGefundene Plagiate pro Student", background="white", foreground="black", padx=5,
+                 pady=5,
                  justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=7, column=0, sticky="ew")
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=7, column=0, columnspan=3, sticky="ew")
 
         row = 7
         for student in stats[2]:
             row += 1
             tk.Button(data_frame, text=student + ": " + str(stats[2][student]), bg="white", foreground="black",
                       padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
-                      relief="solid", command=lambda student_filter=student: self.on_student_button([student_filter])).grid(row=row, column=0, sticky="ew")
+                      relief="solid",
+                      command=lambda student_filter=student: self.on_student_button([student_filter])).grid(row=row,
+                                                                                                            column=0,
+                                                                                                            sticky="ew")
+
+            tk.Button(data_frame, text=str(self.stud_plagiat_accordance([student])) + " %", bg="white", foreground="black",
+                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
+                      relief="solid",
+                      command=lambda student_filter=student: self.on_student_button([student_filter])).grid(row=row,
+                                                                                                            column=1,
+                                                                                                            sticky="ew")
+
+            tk.Button(data_frame, text="Kein Plagiat✅", bg="white", foreground="black",
+                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
+                      relief="solid",
+                      command=self.on_auswertung_kein_plagiat_button).grid(row=row, column=2, sticky="ew")
 
         row += 1
-        tk.Label(data_frame, text="\tAnzahl Plagiate bei Studentenpaaren:", background="white", foreground="black", padx=5, pady=5,
+        tk.Label(data_frame, text="\tAnzahl Plagiate bei Studentenpaaren:", background="white", foreground="black",
+                 padx=5, pady=5,
                  justify="center", font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid",
-                 anchor="w").grid(row=row, column=0, sticky="ew")
+                 anchor="w").grid(row=row, column=0, columnspan=3, sticky="ew")
 
         for student in stats[3]:
             row += 1
             tk.Button(data_frame, text=student + ": " + str(stats[3][student]), bg="white", foreground="black",
                       padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
-                      relief="solid", command=lambda student_filter=student.split(" - "): self.on_student_button(student_filter)).grid(row=row, column=0, sticky="ew")
+                      relief="solid",
+                      command=lambda student_filter=student.split(" - "): self.on_student_button(student_filter)).grid(
+                row=row, column=0, sticky="ew")
+
+            tk.Button(data_frame, text=str(self.stud_plagiat_accordance(student.split(" - "))) + " %", bg="white",
+                      foreground="black",
+                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
+                      relief="solid",
+                      command=lambda student_filter=student.split(" - "): self.on_student_button(student_filter)).grid(
+                row=row, column=1, sticky="ew")
+
+            tk.Button(data_frame, text="Kein Plagiat✅", bg="white", foreground="black",
+                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
+                      relief="solid",
+                      command=self.on_auswertung_kein_plagiat_button).grid(row=row, column=2, sticky="ew")
 
         self.inner_frame = data_frame
         self.root.update()
+
+    def stud_plagiat_accordance(self, studentlist: list):
+        """
+        :param studentlist: list of students
+        :return: %-value of students with plagiarism
+        """
+        filedict = {}
+        items = filter_dict(self.data, studentlist)
+        for item in items:
+            for plagiat in item[1]:
+                if plagiat[0] + str(os.path.basename(plagiat[1])) not in filedict:
+                    file_as_list = []
+                    for c, line in enumerate(FileEditor.read_file(plagiat[1]).split("\n")):
+                        file_as_list.append([c, line])
+                    file = PlagiatScanner.filter_lines(file_as_list)
+                    filedict[plagiat[0] + str(os.path.basename(plagiat[1]))] = file
+
+                for i, file_line in enumerate(filedict[plagiat[0] + str(os.path.basename(plagiat[1]))]):
+                    if plagiat[2][0] <= file_line[0] <= plagiat[2][1] and not \
+                    filedict[plagiat[0] + str(os.path.basename(plagiat[1]))][i][1].startswith("plag###"):
+                        filedict[plagiat[0] + str(os.path.basename(plagiat[1]))][i][1] = "plag###" + filedict[
+                            plagiat[0] + str(os.path.basename(plagiat[1]))][i][1]
+
+        row_all = 0
+        row_plag = 0
+        for file in filedict:
+            for row in filedict[file]:
+                row[1].strip()
+                if row[1] == "":
+                    continue
+                row_all += 1
+                if row[1].startswith("plag###"):
+                    row_plag += 1
+
+        return round((row_plag / row_all) * 100, 2)
+
+    def on_auswertung_kein_plagiat_button(self):
+        pass
 
     def on_student_button(self, filter_list):
         TableGui(self.data, filter_list)
@@ -380,10 +447,15 @@ class TableGui:
         if save_as == "pdf":
             if data[0] == [""]:
                 data.pop(0)
-            export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file", initialfile="Plagiat " + "-".join(data[0]).strip('\t\n') + ".pdf", filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
+            export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file",
+                                                       initialfile="Plagiat " + "-".join(data[0]).strip(
+                                                           '\t\n') + ".pdf",
+                                                       filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
             FileEditor.table_to_pdf_export(export_path, data)
         elif save_as == "xlsx":
-            export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file", initialfile="Plagiat " + "-".join(data[0]) + ".xlsx", filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
+            export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file",
+                                                       initialfile="Plagiat " + "-".join(data[0]) + ".xlsx",
+                                                       filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
             FileEditor.table_to_xlsx_export(export_path, data)
         else:
             Exception("Export format not given/supported")
