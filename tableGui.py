@@ -1,5 +1,6 @@
 import os.path
 import re
+import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from tkinter.ttk import Frame
@@ -56,11 +57,10 @@ class TableGui:
         self.root.title("PlagScan for Java-Labore")
         self.root.configure(bg='#0a3055')
 
-        self.create_table_plag()
         if stud_filter is None:
-            self.display_plagiat()
-            self.create_button_panel_plagiat()
+            self.create_auswertung()
         else:
+            self.create_table_plag()
             self.display_stud_vergleich(stud_filter)
             self.create_button_panel_einzelauswertung()
 
@@ -205,13 +205,15 @@ class TableGui:
         button_panel.columnconfigure(1, weight=1)
 
         # Buttons erstellen
+        btn_einzelplag = ttk.Button(button_panel, text="Einzel Plagiate", command=self.on_open_einzelplagiat_button)
         btn_exsave = ttk.Button(button_panel, text="Export Savefile", command=self.on_export_savefile_button)
         btn_expdf = ttk.Button(button_panel, text="Export as PDF",
                                command=lambda: self.on_export_table_button(save_as="pdf"))
 
         # Buttons positionieren
-        btn_exsave.grid(row=0, column=0, sticky="w")
-        btn_expdf.grid(row=0, column=1, sticky="e")
+        btn_einzelplag.grid(row=0, column=0, sticky="w")
+        btn_exsave.grid(row=0, column=1, sticky="e")
+        btn_expdf.grid(row=0, column=2, sticky="e")
 
     def create_button_panel_einzelauswertung(self):
         # Button-Panel erstellen
@@ -225,6 +227,11 @@ class TableGui:
 
         # Buttons positionieren
         btn_expdf.grid(row=0, column=0, sticky="e")
+
+    def on_open_einzelplagiat_button(self):
+        self.create_table_plag()
+        self.display_plagiat()
+        self.create_button_panel_plagiat()
 
     def on_plagiat_button_click(self):
         # Information speichern
@@ -263,6 +270,9 @@ class TableGui:
 
     def create_auswertung_gui(self):
         stats = PlagiatScanner.create_stats(self.data)
+
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
 
         # Mainframe
         auswertung_gui = ttk.Frame(self.root)
