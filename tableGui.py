@@ -251,6 +251,7 @@ class TableGui:
     def on_ok_button_click(self):
         # Aktuelles Plagiat löschen
         del self.data[self.items[self.current_item_index][1][0]]
+        threading.Thread(target=self.on_speichern_button_click).start()  # Speichern in Datei
 
         self.current_item_index += 1  # Zum nächsten Element wechseln
         self.create_table_plag()  # Nächstes Plagiat anzeigen
