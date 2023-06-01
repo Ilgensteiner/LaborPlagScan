@@ -28,6 +28,25 @@ def filter_dict(data: dict, filters: list):
     return result
 
 
+def delete_stud_from_dict(data: dict, stud: list):
+    """Löscht einen Studenten aus dem Dictionary"""
+    del_keys_list = []
+    for key, value in data.items():
+        stud_names = []
+        for item in value:
+            stud_names.append(item[0])
+        if set(stud).issubset(stud_names):
+            for item in value:
+                if item[0] in stud:
+                    value.remove(item)
+        if len(value) <= 1:
+            del_keys_list.append(key)
+
+    for key in del_keys_list:
+        del data[key]
+    return data
+
+
 class TableGui:
     inner_frame: Frame
 
@@ -364,7 +383,7 @@ class TableGui:
             tk.Button(data_frame, text="Kein Plagiat✅", bg="white", foreground="black",
                       padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
                       relief="solid",
-                      command=self.on_auswertung_kein_plagiat_button).grid(row=row, column=2, sticky="ew")
+                      command=lambda student_filter=student: self.on_auswertung_kein_plagiat_button([student_filter])).grid(row=row, column=2, sticky="ew")
 
         row += 1
         tk.Label(data_frame, text="\tAnzahl Plagiate bei Studentenpaaren:", background="white", foreground="black",
@@ -390,7 +409,7 @@ class TableGui:
             tk.Button(data_frame, text="Kein Plagiat✅", bg="white", foreground="black",
                       padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
                       relief="solid",
-                      command=self.on_auswertung_kein_plagiat_button).grid(row=row, column=2, sticky="ew")
+                      command=lambda student_filter=student.split(" - "): self.on_auswertung_kein_plagiat_button(student_filter)).grid(row=row, column=2, sticky="ew")
 
         self.inner_frame = data_frame
         self.root.update()
@@ -430,8 +449,10 @@ class TableGui:
 
         return round((row_plag / row_all) * 100, 2)
 
-    def on_auswertung_kein_plagiat_button(self):
-        pass
+    def on_auswertung_kein_plagiat_button(self, filter_list):
+        delete_stud_from_dict(self.data, filter_list)
+        self.create_auswertung_gui()
+        threading.Thread(target=self.on_speichern_button_click).start()  # Speichern in Datei
 
     def on_student_button(self, filter_list):
         TableGui(self.data, filter_list)
