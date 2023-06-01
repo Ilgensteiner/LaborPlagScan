@@ -97,6 +97,7 @@ class GUI:
         self.result_button.bind("<Leave>", on_leave)
 
     def open_table_gui(self, filename=None):
+        self.root.destroy()
         table = tableGui.TableGui(FileEditor.load_auswertung_from_file(filename))
 
     def set_progressbar_start(self, value: int):
