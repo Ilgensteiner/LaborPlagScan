@@ -206,7 +206,7 @@ def compare_files(file1_path: str, file2_path: str) -> list:
 def create_stats(plag_dict: dict) -> list:
     """Creates a list with the stats for the given dictionary
         :return [Plag_Count, Stud_Count, Stud_dict]"""
-    # Zählen wie oft ein Student plagiiert hat
+    # Zählen wie oft ein Student plagiiert, hat
     stud_plag_count = {}
     for key, value in plag_dict.items():
         for element in value:
@@ -314,7 +314,7 @@ def plagscan(students_folder: str, gui: mainGUI):
     # 4. Ergebnisstruktur erstellen
     stats_list = create_stats(plagiat_dict)
     stats_text = "PlagScan abgeschlossen!\n\nAnzahl Plagiate: " + str(stats_list[0]) + \
-                 "\nAnzahl Studenten mit Plagiat: " + str(stats_list[1]) + "\n\n" + str(stats_list[2])
+                 "\nAnzahl Studenten mit Plagiat: " + str(stats_list[1])
     threading.Thread(target=mainGUI.display_msgbox, args=("PlagScan", stats_text)).start()
 
     # 5. Ergebnis speichern

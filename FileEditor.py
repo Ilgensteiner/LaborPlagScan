@@ -165,26 +165,26 @@ def table_to_pdf_export(savepath: str, data: list):
 
 def table_to_xlsx_export(savepath: str, data: list):
     """
-    Exports the data to an xlsx file
+    Exports the data to a xlsx file
     :param savepath: savepath of the xlsx file as string
     :param data: Tabledata as list of lists
     """
 
-    def get_table_width(data):
+    def get_table_width(table_data):
         width_multiplyer: float = 0.83
         height_multiplyer: float = 14.8
         table_width = []
-        table_height = [0 for pos in range(len(data))]
-        for data_column, col in enumerate(data[0]):
+        table_height = [0 for pos in range(len(table_data))]
+        for data_column, col in enumerate(table_data[0]):
             column_width = 0
             column_width_sum, column_width_summanden = 0, 0
-            for row_nr, data_row in enumerate(data):
+            for row_nr, data_row in enumerate(table_data):
                 data_cell_inhalt = str(data_row[data_column]).split("\n")
                 table_height[row_nr] = max(table_height[row_nr], len(data_cell_inhalt))
-                for i in data_cell_inhalt:
-                    column_width_sum += len(i)
+                for inhalt in data_cell_inhalt:
+                    column_width_sum += len(inhalt)
                     column_width_summanden += 1
-                    column_width = max(column_width, len(i))
+                    column_width = max(column_width, len(inhalt))
             column_width = ((column_width_sum / column_width_summanden) + column_width) / 2
             table_width.append(column_width)
 
@@ -224,4 +224,3 @@ def table_to_xlsx_export(savepath: str, data: list):
         sheet.row_dimensions[i + 1].height = tablesize[1][i]
 
     workbook.save(savepath)
-
