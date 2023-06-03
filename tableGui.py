@@ -60,7 +60,7 @@ def scroll_to_row(canvas, row):
 
 
 def delete_stud_from_dict(data: dict, stud: list):
-    """Löscht einen Studenten aus dem Dictionary"""
+    """Löscht Student/-en aus dem Dictionary"""
     del_keys_list = []
     for key, value in data.items():
         stud_names = []
@@ -117,6 +117,7 @@ class TableGui:
         self.root.mainloop()
 
     def create_table_plag(self):
+        """Erstellt die Tabelle für die Plagiatsauswertung"""
         # Tabelle erstellen
         self.vergl_table = ttk.Frame(self.root)
         self.vergl_table.grid(row=0, column=0, sticky="nsew")
@@ -151,7 +152,7 @@ class TableGui:
         canvas.bind_all("<Button-5>", lambda event: canvas.xview_scroll(1, "units"))
 
     def display_plagiat(self):
-        # Anzeige des Plagiats
+        """Anzeige des Plagiats"""
         if self.current_item_index < len(self.items):
             plagiat = self.items[self.current_item_index]
             # Anzeige des Plagiats
@@ -186,7 +187,7 @@ class TableGui:
         self.root.update()
 
     def display_stud_vergleich(self, filtered_studs):
-        # create and fill dict with all files / plag of students
+        """Anzeige der Studierenden im Vergleichsmodus"""
         stud_files = {}
         for plagiat in self.items:
             for stud in plagiat[1]:
@@ -225,6 +226,7 @@ class TableGui:
         self.root.update()
 
     def create_button_panel_plagiat(self):
+        """Erstellt das Button-Panel für den Plagiat-Modus"""
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
         button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
@@ -249,6 +251,7 @@ class TableGui:
         self.btn_auswertung.grid(row=0, column=4, sticky="e")
 
     def create_button_panel_auswertung(self):
+        """Erstellt das Button-Panel für den Auswertungs-Modus"""
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
         button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
@@ -266,6 +269,7 @@ class TableGui:
         btn_expdf.grid(row=0, column=2, sticky="e")
 
     def create_button_panel_einzelauswertung(self):
+        """Erstellt das Button-Panel für den Einzel-Auswertungs-Modus"""
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
         button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
@@ -320,6 +324,7 @@ class TableGui:
         self.create_auswertung_gui()
 
     def create_auswertung_gui(self, lastrow=None):
+        """Erstellt die GUI für den Auswertungs-Modus"""
         stats = PlagiatScanner.create_stats(self.data)
 
         self.root.columnconfigure(0, weight=1)

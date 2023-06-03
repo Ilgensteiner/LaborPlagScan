@@ -3,6 +3,7 @@ import re
 import PlagiatScanner
 
 java_syntax = PlagiatScanner.java_syntax
+"""Nur um die Syntax zu testen und zu filtern"""
 
 
 def replace_syntax_in_file(filepath, word_list):

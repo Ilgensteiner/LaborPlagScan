@@ -14,6 +14,7 @@ import mainGUI
 
 
 def extract_zip(zip_path):
+    """Extracts a zip file to a folder with the same name as the zip file"""
     with zipfile.ZipFile(zip_path, 'r') as zip_file:
         folder_name = os.path.splitext(os.path.basename(zip_path))[0]
         extract_path = os.path.join(os.path.dirname(zip_path), folder_name)
@@ -22,6 +23,7 @@ def extract_zip(zip_path):
 
 
 def unpackZipFiles(folder_path: str, gui: mainGUI):
+    """Entpackt alle ZIP-Dateien im Ordner und gibt den Pfad zum Ordner zurück, in dem die Dateien entpackt wurden"""
     # 1. Liste aller Dateien im Ordner
     files = os.listdir(folder_path)
     zipfile_found = False
@@ -58,6 +60,7 @@ def unpackZipFiles(folder_path: str, gui: mainGUI):
 
 
 def get_last_modified_file():
+    """Returns the last modified file in the result folder"""
     folder_path = 'result'
     if not os.path.exists(folder_path):
         return None
@@ -85,6 +88,7 @@ def save_auswertung_to_file(d: dict, path="result/", filename="last_result"):
 
 
 def load_auswertung_from_file(filename=None) -> dict:
+    """Loads the 'auswertung' dictionary from a json-file"""
     if filename is None:
         filepath = tkinter.filedialog.askopenfilename(initialdir="/", title="Select file")
     else:
@@ -100,6 +104,11 @@ def load_auswertung_from_file(filename=None) -> dict:
 
 
 def read_file(filepath, lines=None):
+    """
+    :param filepath: Pfad zur Datei
+    :param lines: Zeilen, die aus der Datei gelesen werden sollen
+    Reads a file and returns the content as a string"""
+
     with open(filepath, 'r') as file:
         content = file.readlines()
         if lines:
@@ -123,6 +132,9 @@ def read_file(filepath, lines=None):
 
 
 def table_to_pdf_export(savepath: str, data: list):
+    """Erstellt eine PDF-Datei aus einer Tabelle
+    :param savepath: Pfad, in dem die PDF-Datei gespeichert werden soll
+    :param data: Liste mit den Daten, die in der Tabelle angezeigt werden sollen"""
     print(data)
     # Erzeugen einer temporären PDF-Datei
     temp_filename = 'temp.pdf'
@@ -171,6 +183,7 @@ def table_to_xlsx_export(savepath: str, data: list):
     """
 
     def get_table_width(table_data):
+        """Returns the width of the table in cm"""
         width_multiplyer: float = 0.83
         height_multiplyer: float = 14.8
         table_width = []

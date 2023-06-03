@@ -71,7 +71,7 @@ def file_to_list(filepath: str) -> list:
 
 
 def replace_words_in_file(file_list: list, word_list: set) -> list:
-    """Replaces all variables in a file with a placeholder and deletes all comments"""
+    """Replaces all variables in a file with a placeholder and deletes all comments, and blank lines"""
     new_lines = []
     commentblock = False
 
@@ -205,7 +205,7 @@ def compare_files(file1_path: str, file2_path: str) -> list:
 
 def create_stats(plag_dict: dict) -> list:
     """Creates a list with the stats for the given dictionary
-        :return [Plag_Count, Stud_Count, Stud_dict]"""
+        :return [Anz Plagiate, Anz Studenten, Plagiate pro Student, Plagiate pro Studenten Paar]"""
     # Zählen wie oft ein Student plagiiert, hat
     stud_plag_count = {}
     for key, value in plag_dict.items():
