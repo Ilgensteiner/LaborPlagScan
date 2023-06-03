@@ -7,6 +7,7 @@ from tkinter.ttk import Frame
 import FileEditor
 import PlagiatScanner
 
+lastbutton = None  # Globale Variable
 
 def filter_dict(data: dict, filters: list):
     """Filtert ein Dictionary (StudPlagData) nach den angegebenen Filtern (Liste mit Studentennamen)"""
@@ -32,22 +33,29 @@ def on_enter(e):
     frame = e.widget.master
     for button in frame.children.values():
         if isinstance(button, tk.Button):
-            button.configure(bg='lightgrey')
+            button.configure(bg='#e6e6e6')
 
 
 def on_leave(e):
     frame = e.widget.master
     for button in frame.children.values():
         if isinstance(button, tk.Button):
-            button.configure(bg='white')
+            button.configure(bg='#ffffff')
 
 
-def on_click(e):
-    frame = e.widget.master
-    print(frame)
-    for button in frame.children.values():
-        if isinstance(button, tk.Button):
-            button.configure(bg='red')
+def on_click(frame):
+    """Wird aufgerufen, wenn ein Button in der Tabelle geklickt wird"""
+    global lastbutton  # Zugriff auf die globale Variable lastbutton
+    if lastbutton is not None:
+        lastbutton.config(text=lastbutton.cget('text').replace("[last opend]", "[bestätigt]"))  # Austauschen "[checked]" vom vorherigen Button
+    button = list(frame.children.values())[0]  # Holen Sie sich den geklickten Button
+    button.config(text=button.cget('text') + "\t[last opend]")  # Ändern Sie den Text des Buttons und fügen Sie "[checked]" hinzu
+    lastbutton = button  # Aktualisieren Sie die globale Variable lastbutton
+
+
+def scroll_to_row(canvas, row):
+    """Scrollt zu einer bestimmten Zeile in der Tabelle"""
+    pass
 
 
 def delete_stud_from_dict(data: dict, stud: list):
@@ -310,7 +318,7 @@ class TableGui:
             widget.destroy()
         self.create_auswertung_gui()
 
-    def create_auswertung_gui(self):
+    def create_auswertung_gui(self, lastrow=None):
         stats = PlagiatScanner.create_stats(self.data)
 
         self.root.columnconfigure(0, weight=1)
@@ -388,47 +396,8 @@ class TableGui:
                  padx=5, pady=5, justify="left",
                  font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=6, column=0, columnspan=3,
                                                                                          sticky="ew")
-        tk.Label(data_frame, text="\tGefundene Plagiate pro Student", background="white", foreground="black", padx=5,
-                 pady=5,
-                 justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=7, column=0, columnspan=3,
-                                                                                         sticky="ew")
 
         row = 7
-        for student in stats[2]:
-            row += 1
-
-            button_frame = tk.Frame(data_frame)
-            button_frame.grid(row=row, column=0, columnspan=3, sticky="ew")
-            name_button = tk.Button(button_frame, text=student + ": " + str(stats[2][student]), bg="white", foreground="black",
-                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
-                      relief="solid",
-                      command=lambda student_filter=student: self.on_student_button([student_filter]))
-            name_button.grid(row=0, column=0, sticky="ew")
-            name_button.bind("<Enter>", on_enter)
-            name_button.bind("<Leave>", on_leave)
-
-            accordance_button = tk.Button(button_frame, text=str(self.stud_plagiat_accordance([student])) + " %", bg="white",
-                                          foreground="black",
-                                          padx=5, pady=5, justify="center", anchor="center", font=("Calibri", 12), borderwidth=0.5,
-                                          relief="solid", width=8,
-                                          command=lambda student_filter=student: self.on_student_button([student_filter]))
-            accordance_button.grid(row=0, column=1, sticky="e")
-            accordance_button.bind("<Enter>", on_enter)
-            accordance_button.bind("<Leave>", on_leave)
-
-            noplag_button = tk.Button(button_frame, text="Kein Plagiat✅", bg="white", foreground="black",
-                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
-                      relief="solid",
-                      command=lambda student_filter=student: self.on_auswertung_kein_plagiat_button(
-                          [student_filter]))
-            noplag_button.grid(row=0, column=2, sticky="e")
-            noplag_button.bind("<Enter>", on_enter)
-            noplag_button.bind("<Leave>", on_leave)
-
-            button_frame.columnconfigure(0, weight=1)
-
-        row += 1
         tk.Label(data_frame, text="\tAnzahl Plagiate bei Studentenpaaren:", background="white", foreground="black",
                  padx=5, pady=5,
                  justify="center", font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid",
@@ -439,37 +408,98 @@ class TableGui:
 
             button_frame = tk.Frame(data_frame)
             button_frame.grid(row=row, column=0, columnspan=3, sticky="ew")
-            name_button = tk.Button(button_frame, text=student + ": " + str(stats[3][student]), bg="white", foreground="black",
-                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
-                      relief="solid",
-                      command=lambda student_filter=student.split(" - "): self.on_student_button(student_filter))
+            name_button = tk.Button(button_frame, text=student + ": " + str(stats[3][student]), bg="white",
+                                    foreground="black",
+                                    padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
+                                    relief="solid",
+                                    command=lambda student_filter=student.split(" - "),
+                                                   frame=button_frame: self.on_student_button(
+                                        student_filter, frame))
             name_button.grid(row=0, column=0, sticky="ew")
             name_button.bind("<Enter>", on_enter)
             name_button.bind("<Leave>", on_leave)
 
-            accordance_button = tk.Button(button_frame, text=str(self.stud_plagiat_accordance(student.split(" - "))) + " %", bg="white",
-                      foreground="black",
-                      padx=5, pady=5, justify="left", anchor="center", font=("Calibri", 12), borderwidth=0.5,
-                      relief="solid", width=8,
-                      command=lambda student_filter=student.split(" - "): self.on_student_button(student_filter))
+            accordance_button = tk.Button(button_frame,
+                                          text=str(self.stud_plagiat_accordance(student.split(" - "))) + " %",
+                                          bg="white",
+                                          foreground="black",
+                                          padx=5, pady=5, justify="left", anchor="center", font=("Calibri", 12),
+                                          borderwidth=0.5,
+                                          relief="solid", width=8,
+                                          command=lambda student_filter=student.split(" - "),
+                                                         frame=button_frame: self.on_student_button(
+                                              student_filter, frame))
             accordance_button.grid(row=0, column=1, sticky="e")
             accordance_button.bind("<Enter>", on_enter)
             accordance_button.bind("<Leave>", on_leave)
 
             noplag_button = tk.Button(button_frame, text="Kein Plagiat✅", bg="white", foreground="black",
-                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
-                      relief="solid",
-                      command=lambda student_filter=student.split(" - "): self.on_auswertung_kein_plagiat_button(
-                          student_filter))
+                                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
+                                      relief="solid",
+                                      command=lambda
+                                          student_filter=student.split(" - "),
+                                          studrow=row: self.on_auswertung_kein_plagiat_button(
+                                          student_filter, studrow))
             noplag_button.grid(row=0, column=2, sticky="e")
             noplag_button.bind("<Enter>", on_enter)
             noplag_button.bind("<Leave>", on_leave)
 
             button_frame.columnconfigure(0, weight=1)
 
-        update_inner_frame()
+        row += 1
+        tk.Label(data_frame, text="\tGefundene Plagiate pro Student", background="white", foreground="black", padx=5,
+                 pady=5,
+                 justify="center",
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=row, column=0,
+                                                                                         columnspan=3,
+                                                                                         sticky="ew")
+
+        for student in stats[2]:
+            row += 1
+
+            button_frame = tk.Frame(data_frame)
+            button_frame.grid(row=row, column=0, columnspan=3, sticky="ew")
+            name_button = tk.Button(button_frame, text=student + ": " + str(stats[2][student]), bg="white",
+                                    foreground="black",
+                                    padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
+                                    relief="solid",
+                                    command=lambda student_filter=student, frame=button_frame: self.on_student_button(
+                                        [student_filter], frame))
+            name_button.grid(row=0, column=0, sticky="ew")
+            name_button.bind("<Enter>", on_enter)
+            name_button.bind("<Leave>", on_leave)
+
+            accordance_button = tk.Button(button_frame, text=str(self.stud_plagiat_accordance([student])) + " %",
+                                          bg="white",
+                                          foreground="black",
+                                          padx=5, pady=5, justify="center", anchor="center", font=("Calibri", 12),
+                                          borderwidth=0.5,
+                                          relief="solid", width=8,
+                                          command=lambda student_filter=student,
+                                                         frame=button_frame: self.on_student_button([student_filter],
+                                                                                                    frame))
+            accordance_button.grid(row=0, column=1, sticky="e")
+            accordance_button.bind("<Enter>", on_enter)
+            accordance_button.bind("<Leave>", on_leave)
+
+            noplag_button = tk.Button(button_frame, text="Kein Plagiat✅", bg="white", foreground="black",
+                                      padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
+                                      relief="solid",
+                                      command=lambda student_filter=student,
+                                                     studrow=row: self.on_auswertung_kein_plagiat_button(
+                                          [student_filter], studrow))
+            noplag_button.grid(row=0, column=2, sticky="e")
+            noplag_button.bind("<Enter>", on_enter)
+            noplag_button.bind("<Leave>", on_leave)
+
+            button_frame.columnconfigure(0, weight=1)
+
         self.inner_frame = data_frame
         self.root.update()
+        update_inner_frame()
+        if lastrow is not None:
+            print(row)
+            scroll_to_row(canvas, lastrow)
 
     def stud_plagiat_accordance(self, studentlist: list):
         """
@@ -506,12 +536,13 @@ class TableGui:
 
         return round((row_plag / row_all) * 100, 2)
 
-    def on_auswertung_kein_plagiat_button(self, filter_list):
+    def on_auswertung_kein_plagiat_button(self, filter_list, row=None):
         delete_stud_from_dict(self.data, filter_list)
-        self.create_auswertung_gui()
+        self.create_auswertung_gui(row)
         threading.Thread(target=self.on_speichern_button_click).start()  # Speichern in Datei
 
-    def on_student_button(self, filter_list):
+    def on_student_button(self, filter_list, button_frame):
+        on_click(button_frame)
         TableGui(self.data, filter_list)
 
     def on_export_savefile_button(self):
