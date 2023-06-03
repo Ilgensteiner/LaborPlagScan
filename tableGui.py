@@ -9,6 +9,7 @@ import PlagiatScanner
 
 lastbutton = None  # Globale Variable
 
+
 def filter_dict(data: dict, filters: list):
     """Filtert ein Dictionary (StudPlagData) nach den angegebenen Filtern (Liste mit Studentennamen)"""
     result = []
@@ -47,9 +48,9 @@ def on_click(frame):
     """Wird aufgerufen, wenn ein Button in der Tabelle geklickt wird"""
     global lastbutton  # Zugriff auf die globale Variable lastbutton
     if lastbutton is not None:
-        lastbutton.config(text=lastbutton.cget('text').replace("[last opend]", "[bestätigt]"))  # Austauschen "[checked]" vom vorherigen Button
+        lastbutton.config(text=lastbutton.cget('text').replace("[last opend]", "[checked]"))  # Austauschen "[checked]" vom vorherigen Button
     button = list(frame.children.values())[0]  # Holen Sie sich den geklickten Button
-    button.config(text=button.cget('text') + "\t[last opend]")  # Ändern Sie den Text des Buttons und fügen Sie "[checked]" hinzu
+    button.config(text=button.cget('text') + "\t[last opend]")  # Ändern Sie den Text des Buttons und fügen Sie "[last opend]" hinzu
     lastbutton = button  # Aktualisieren Sie die globale Variable lastbutton
 
 
@@ -59,7 +60,7 @@ def scroll_to_row(canvas, row):
 
 
 def delete_stud_from_dict(data: dict, stud: list):
-    """Löscht einen Studenten aus dem Dictionary"""
+    """Löscht Student/-en aus dem Dictionary"""
     del_keys_list = []
     for key, value in data.items():
         stud_names = []
@@ -116,6 +117,7 @@ class TableGui:
         self.root.mainloop()
 
     def create_table_plag(self):
+        """Erstellt die Tabelle für die Plagiatsauswertung"""
         # Tabelle erstellen
         self.vergl_table = ttk.Frame(self.root)
         self.vergl_table.grid(row=0, column=0, sticky="nsew")
@@ -150,7 +152,7 @@ class TableGui:
         canvas.bind_all("<Button-5>", lambda event: canvas.xview_scroll(1, "units"))
 
     def display_plagiat(self):
-        # Anzeige des Plagiats
+        """Anzeige des Plagiats"""
         if self.current_item_index < len(self.items):
             plagiat = self.items[self.current_item_index]
             # Anzeige des Plagiats
@@ -185,7 +187,7 @@ class TableGui:
         self.root.update()
 
     def display_stud_vergleich(self, filtered_studs):
-        # create and fill dict with all files / plag of students
+        """Anzeige der Studierenden im Vergleichsmodus"""
         stud_files = {}
         for plagiat in self.items:
             for stud in plagiat[1]:
@@ -224,6 +226,7 @@ class TableGui:
         self.root.update()
 
     def create_button_panel_plagiat(self):
+        """Erstellt das Button-Panel für den Plagiat-Modus"""
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
         button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
@@ -248,6 +251,7 @@ class TableGui:
         self.btn_auswertung.grid(row=0, column=4, sticky="e")
 
     def create_button_panel_auswertung(self):
+        """Erstellt das Button-Panel für den Auswertungs-Modus"""
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
         button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
@@ -265,6 +269,7 @@ class TableGui:
         btn_expdf.grid(row=0, column=2, sticky="e")
 
     def create_button_panel_einzelauswertung(self):
+        """Erstellt das Button-Panel für den Einzel-Auswertungs-Modus"""
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
         button_panel.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
@@ -319,6 +324,7 @@ class TableGui:
         self.create_auswertung_gui()
 
     def create_auswertung_gui(self, lastrow=None):
+        """Erstellt die GUI für den Auswertungs-Modus"""
         stats = PlagiatScanner.create_stats(self.data)
 
         self.root.columnconfigure(0, weight=1)
@@ -412,8 +418,7 @@ class TableGui:
                                     foreground="black",
                                     padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
                                     relief="solid",
-                                    command=lambda student_filter=student.split(" - "),
-                                                   frame=button_frame: self.on_student_button(
+                                    command=lambda student_filter=student.split(" - "), frame=button_frame: self.on_student_button(
                                         student_filter, frame))
             name_button.grid(row=0, column=0, sticky="ew")
             name_button.bind("<Enter>", on_enter)
@@ -426,8 +431,7 @@ class TableGui:
                                           padx=5, pady=5, justify="left", anchor="center", font=("Calibri", 12),
                                           borderwidth=0.5,
                                           relief="solid", width=8,
-                                          command=lambda student_filter=student.split(" - "),
-                                                         frame=button_frame: self.on_student_button(
+                                          command=lambda student_filter=student.split(" - "), frame=button_frame: self.on_student_button(
                                               student_filter, frame))
             accordance_button.grid(row=0, column=1, sticky="e")
             accordance_button.bind("<Enter>", on_enter)
@@ -436,9 +440,7 @@ class TableGui:
             noplag_button = tk.Button(button_frame, text="Kein Plagiat✅", bg="white", foreground="black",
                                       padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
                                       relief="solid",
-                                      command=lambda
-                                          student_filter=student.split(" - "),
-                                          studrow=row: self.on_auswertung_kein_plagiat_button(
+                                      command=lambda student_filter=student.split(" - "), studrow=row: self.on_auswertung_kein_plagiat_button(
                                           student_filter, studrow))
             noplag_button.grid(row=0, column=2, sticky="e")
             noplag_button.bind("<Enter>", on_enter)
@@ -475,9 +477,7 @@ class TableGui:
                                           padx=5, pady=5, justify="center", anchor="center", font=("Calibri", 12),
                                           borderwidth=0.5,
                                           relief="solid", width=8,
-                                          command=lambda student_filter=student,
-                                                         frame=button_frame: self.on_student_button([student_filter],
-                                                                                                    frame))
+                                          command=lambda student_filter=student, frame=button_frame: self.on_student_button([student_filter], frame))
             accordance_button.grid(row=0, column=1, sticky="e")
             accordance_button.bind("<Enter>", on_enter)
             accordance_button.bind("<Leave>", on_leave)
@@ -485,8 +485,7 @@ class TableGui:
             noplag_button = tk.Button(button_frame, text="Kein Plagiat✅", bg="white", foreground="black",
                                       padx=5, pady=5, justify="left", anchor="w", font=("Calibri", 12), borderwidth=0.5,
                                       relief="solid",
-                                      command=lambda student_filter=student,
-                                                     studrow=row: self.on_auswertung_kein_plagiat_button(
+                                      command=lambda student_filter=student, studrow=row: self.on_auswertung_kein_plagiat_button(
                                           [student_filter], studrow))
             noplag_button.grid(row=0, column=2, sticky="e")
             noplag_button.bind("<Enter>", on_enter)

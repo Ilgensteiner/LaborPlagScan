@@ -1,6 +1,5 @@
-import tkinter
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import filedialog, ttk, messagebox
 import pygame
 
 import FileEditor
@@ -17,7 +16,7 @@ def on_leave(e):
 
 
 def display_msgbox(title, message):
-    tkinter.messagebox.showinfo(title, message)
+    messagebox.showinfo(title, message)
 
 
 class GUI:
