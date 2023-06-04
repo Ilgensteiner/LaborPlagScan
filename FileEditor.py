@@ -137,7 +137,7 @@ def table_to_pdf_export(savepath: str, data: list):
     :param data: Liste mit den Daten, die in der Tabelle angezeigt werden sollen"""
     print(data)
     # Erzeugen einer temporären PDF-Datei
-    temp_filename = 'temp.pdf'
+    temp_filename = 'result/temp.pdf'
 
     # Erzeugen der Tabelle
     table = Table(data)
