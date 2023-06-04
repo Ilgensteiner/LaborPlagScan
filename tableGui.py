@@ -354,7 +354,7 @@ class TableGui:
         placeholder_label = ttk.Label(data_frame, text="", background="white", foreground="white", padding=0,
                                       font=("Calibri", 1), borderwidth=0, relief="flat",
                                       width=self.root.winfo_width() - 25)
-        placeholder_label.grid(row=0, column=0, columnspan=3, sticky="nsew")
+        placeholder_label.grid(row=0, column=0, sticky="nsew")
 
         def update_inner_frame(event=None):
             canvas.configure(scrollregion=canvas.bbox("all"))
@@ -379,37 +379,34 @@ class TableGui:
         tk.Label(data_frame, text="\tÜbersicht", background="white", foreground="black", padx=5, pady=5,
                  justify="center",
                  font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid", anchor="w").grid(row=1, column=0,
-                                                                                                 columnspan=3,
                                                                                                  sticky="ew")
         tk.Label(data_frame, text="Anzahl ausgewerteter Code-Blöcke: " + str(stats[0]), background="white",
                  foreground="black", padx=5, pady=5, justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=2, column=0, columnspan=3,
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=2, column=0,
                                                                                          sticky="ew")
         tk.Label(data_frame, text="Anzahl der Plagiate: " + str(len(self.items_plagiat)), background="white",
                  foreground="black", padx=5, pady=5, justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=3, column=0, columnspan=3,
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=3, column=0,
                                                                                          sticky="ew")
         tk.Label(data_frame, text="Anzahl der unsicheren Plagiate: " + str(len(self.items_unsicher)),
                  background="white", foreground="black", padx=5, pady=5, justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=4, column=0, columnspan=3,
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=4, column=0,
                                                                                          sticky="ew")
 
         tk.Label(data_frame, text="\tAuswertung Studenten:", background="white", foreground="black", padx=5, pady=5,
                  justify="center",
                  font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid", anchor="w").grid(row=5, column=0,
-                                                                                                 columnspan=3,
                                                                                                  sticky="ew")
         tk.Label(data_frame, text="Anzahl der Studenten mit Plagiaten: " + str(stats[1]), background="white",
                  foreground="black",
                  padx=5, pady=5, justify="left",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=6, column=0, columnspan=3,
-                                                                                         sticky="ew")
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=6, column=0, sticky="ew")
 
         row = 7
         tk.Label(data_frame, text="\tAnzahl Plagiate bei Studentenpaaren:", background="white", foreground="black",
                  padx=5, pady=5,
                  justify="center", font=("Calibri", 12, "bold"), borderwidth=0.5, relief="solid",
-                 anchor="w").grid(row=row, column=0, columnspan=3, sticky="ew")
+                 anchor="w").grid(row=row, column=0, sticky="ew")
 
         global checked_buttons
 
@@ -417,7 +414,7 @@ class TableGui:
             row += 1
 
             button_frame = tk.Frame(data_frame)
-            button_frame.grid(row=row, column=0, columnspan=3, sticky="ew")
+            button_frame.grid(row=row, column=0, sticky="ew")
             name_button_text = student + ": " + str(stats[3][student])
             if student in checked_buttons:
                 name_button_text += "  [checked]"
@@ -461,15 +458,13 @@ class TableGui:
         tk.Label(data_frame, text="\tGefundene Plagiate pro Student", background="white", foreground="black", padx=5,
                  pady=5,
                  justify="center",
-                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=row, column=0,
-                                                                                         columnspan=3,
-                                                                                         sticky="ew")
+                 font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=row, column=0, sticky="ew")
 
         for student in stats[2]:
             row += 1
 
             button_frame = tk.Frame(data_frame)
-            button_frame.grid(row=row, column=0, columnspan=3, sticky="ew")
+            button_frame.grid(row=row, column=0, sticky="ew")
             name_button_text = student + ": " + str(stats[2][student])
             if student in checked_buttons:
                 name_button_text += "  [checked]"
@@ -570,9 +565,13 @@ class TableGui:
             while self.inner_frame.grid_slaves(row=row, column=column) != []:
                 grid_widget = self.inner_frame.grid_slaves(row=row, column=column)[0]
                 if grid_widget.widgetName == "text":
-                    row_content.append(grid_widget.get("1.0", "end-1c"))
+                    row_content.append(grid_widget.get("1.0", "end-1c").replace("\t", "    "))
+                elif grid_widget.widgetName == "frame":
+                    frameinhalt = list(grid_widget.children.values())
+                    row_content.append(frameinhalt[0].cget("text").split("  [")[0].replace("\t", "    "))
+                    row_content.append(frameinhalt[1].cget("text"))
                 else:
-                    row_content.append(grid_widget.cget("text"))
+                    row_content.append(grid_widget.cget("text").replace("\t", "    "))
                 column += 1
             data.append(row_content)
             row += 1
@@ -582,7 +581,7 @@ class TableGui:
                 data.pop(0)
             export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file",
                                                        initialfile="Plagiat " + "-".join(data[0]).strip(
-                                                           '\t\n') + ".pdf",
+                                                           '\t\n ') + ".pdf",
                                                        filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
             FileEditor.table_to_pdf_export(export_path, data)
         elif save_as == "xlsx":
