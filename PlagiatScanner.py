@@ -311,11 +311,14 @@ def plagscan(students_folder: str, gui: mainGUI):
                                         [student2, student_dict[student2][file2], [plagiat_code[3], plagiat_code[4]]])
             gui.update_progressbar_value(1)
 
-    # 4. Ergebnisstruktur erstellen
+    # 4. Stats erstellen
     stats_list = create_stats(plagiat_dict)
     stats_text = "PlagScan abgeschlossen!\n\nAnzahl Plagiate: " + str(stats_list[0]) + \
                  "\nAnzahl Studenten mit Plagiat: " + str(stats_list[1])
     threading.Thread(target=mainGUI.display_msgbox, args=("PlagScan", stats_text)).start()
 
-    # 5. Ergebnis speichern
-    FileEditor.save_auswertung_to_file(plagiat_dict)
+    # 5. Ergebnis Sturktur sortieren
+    sorted_plagiat_dict = {k: v for k, v in sorted(plagiat_dict.items(), key=lambda item: len(item[1]), reverse=True)}
+
+    # 6. Ergebnis speichern
+    FileEditor.save_auswertung_to_file(sorted_plagiat_dict)
