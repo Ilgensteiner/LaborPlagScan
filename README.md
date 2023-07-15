@@ -4,7 +4,10 @@ Labor Plagiat Scanner für Prog HS-Harz
 
 ## Installation
 
-Du benötigst Python 3.11. Stelle sicher, dass während der Installation die Option "Add to PATH" aktiviert ist. Falls du Python noch nicht installiert hast, kannst du es [hier](https://www.python.org/downloads/) herunterladen. Eine Anleitung, wie du Python zum PATH hinzufügen kannst, findest du [hier](https://datatofish.com/add-python-to-windows-path/).
+Du benötigst Python 3.11. Stelle sicher, dass während der Installation die Option "Add to PATH" aktiviert ist. Falls du Python noch nicht installiert hast, kannst du es [hier](https://www.python.org/downloads/) herunterladen. 
+
+(Wenn nötig) 
+Eine Anleitung, wie du Python zum PATH hinzufügen kannst, findest du [hier](https://datatofish.com/add-python-to-windows-path/).
 
 ## Anleitung
 
