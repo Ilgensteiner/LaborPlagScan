@@ -1,7 +1,7 @@
-import FileEditor
+from laborPlagScan import FileEditor
 import tkinter as tk
 from GUI import GUI
-from PlagiatScanner import plagscan
+from laborPlagScan.PlagiatScanner import plagscan
 
 
 def start_plagscan_test(test_gui: GUI):

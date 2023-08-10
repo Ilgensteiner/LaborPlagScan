@@ -1,6 +1,6 @@
 # Create a List with all Parameters of the Java-Syntax
 import re
-import PlagiatScanner
+import laborPlagScan.PlagiatScanner as PlagiatScanner
 
 java_syntax = PlagiatScanner.java_syntax
 """Nur um die Syntax zu testen und zu filtern"""

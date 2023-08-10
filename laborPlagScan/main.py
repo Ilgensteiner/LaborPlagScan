@@ -1,8 +1,8 @@
 import tkinter as tk
-from mainGUI import GUI
+from laborPlagScan.mainGUI import GUI
 
 
-if __name__ == '__main__':
+def run() -> None:
     root = tk.Tk()
     gui = GUI(root)
 

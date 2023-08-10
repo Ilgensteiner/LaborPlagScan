@@ -5,8 +5,8 @@ from tkinter import messagebox
 import math
 import re
 
-import FileEditor
-import mainGUI
+import laborPlagScan.FileEditor as FileEditor
+import laborPlagScan.mainGUI as mainGUI
 
 java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
                "default", "double", "do", "else", "enum", "extends", "final", "finally", "float", "for", "goto",
@@ -132,7 +132,7 @@ def filter_lines(file_as_list: list) -> list:
     regexpattern_list = []
     regexpattern_list_pre = []
     filter_strings = []
-    with open('filter.txt', 'r') as f:
+    with open('./filter.txt', 'r') as f:
         filter_list = ast.literal_eval(f.read())
 
     for filter_str in filter_list:

@@ -1,6 +1,6 @@
 
 # LaborPlagScan
-Labor Plagiat Scanner für Prog HS-Harz
+Labor Plagiat Scanner für Prog. an der HS-Harz. Ziel ist es die Abgaben der Studierenden auf Plagiate zu überprüfen.
 
 ## Installation
 
@@ -23,7 +23,7 @@ Eine Anleitung, wie du Python zum PATH hinzufügen kannst, findest du [hier](htt
 2. Die Filter werden automatisch angewendet
 3. Syntax:
     1. Inhalte immer in Anführungszeichen ''
-    2. Variablen Namen (alles was keine Syntax ist) mit x ersetzen
+    2. Variablen Namen (bzw. alles was keine Syntax ist) mit x ersetzen
     3. Für Verwendung von REGEX: 'Regex:[A-Z]*' (Beispiel)
 
 ## Beitragen
