@@ -4,8 +4,9 @@ import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from tkinter.ttk import Frame
-import FileEditor
-import PlagiatScanner
+
+import laborPlagScan.FileEditor as FileEditor
+import laborPlagScan.PlagiatScanner as PlagiatScanner
 
 lastbutton = None  # Globale Variable
 checked_buttons = []  # Globale Variable

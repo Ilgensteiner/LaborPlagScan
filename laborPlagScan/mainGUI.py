@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 import pygame
 
-import FileEditor
-import PlagiatScanner
-import tableGui
+import laborPlagScan.FileEditor as FileEditor
+import laborPlagScan.PlagiatScanner as PlagiatScanner
+import laborPlagScan.tableGui as tableGui
 
 
 def on_enter(e):
