@@ -61,7 +61,7 @@ def unpackZipFiles(folder_path: str, gui: mainGUI):
 
 def get_last_modified_file():
     """Returns the last modified file in the result folder"""
-    folder_path = 'result'
+    folder_path = 'laborPlagScan/result'
     if not os.path.exists(folder_path):
         return None
     files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
@@ -72,7 +72,7 @@ def get_last_modified_file():
     return last_modified_file
 
 
-def save_auswertung_to_file(d: dict, path="result/", filename="last_result"):
+def save_auswertung_to_file(d: dict, path="laborPlagScan/result/", filename="last_result"):
     """Saves the auswertung dictionary to a json-file"""
     if path is None:
         root = tk.Tk()
@@ -93,7 +93,7 @@ def load_auswertung_from_file(filename=None) -> dict:
         filepath = tkinter.filedialog.askopenfilename(initialdir="/", title="Select file")
     else:
         # Erstelle den Pfad zur Datei im Ordner "result"
-        filepath = f"result/{filename}.json"
+        filepath = f"laborPlagScan/result/{filename}.json"
 
     # Öffne die Datei und lese das dict aus
     with open(filepath, "r") as file:
@@ -137,7 +137,7 @@ def table_to_pdf_export(savepath: str, data: list):
     :param data: Liste mit den Daten, die in der Tabelle angezeigt werden sollen"""
     print(data)
     # Erzeugen einer temporären PDF-Datei
-    temp_filename = 'result/temp.pdf'
+    temp_filename = 'laborPlagScan/result/temp.pdf'
 
     # Erzeugen der Tabelle
     table = Table(data)
