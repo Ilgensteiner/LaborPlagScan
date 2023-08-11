@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 import pygame
@@ -79,7 +80,8 @@ class GUI:
         if self.clicks >= 5:
             # toggle Music
             if not self.music_playing:
-                pygame.mixer.music.load('resources/UniversalAdobePatcherMusic.mp3')
+                music_path = os.path.join(os.getcwd(), 'laborPlagScan', 'resources', 'UniversalAdobePatcherMusic.mp3')
+                pygame.mixer.music.load(music_path)
                 pygame.mixer.music.play()
                 self.music_playing = True
             else:
