@@ -56,6 +56,8 @@ class GUI:
         last_save = FileEditor.get_last_modified_file()
         if last_save is not None:
             self.create_open_result_button(last_save)
+        else:
+            self.create_open_result_button(None)
 
         self.result_from_button = tk.Button(self.root, text="🔽", command=lambda: self.open_table_gui())
         self.result_from_button.grid(row=5, column=2, pady=10, sticky="w")
@@ -91,7 +93,13 @@ class GUI:
     def create_open_result_button(self, filename: str):
         if filename is None:
             filename = FileEditor.get_last_modified_file()
-        self.result_button = tk.Button(self.root, text=f"Open {filename}", command=lambda: self.open_table_gui(filename))
+            if filename is None:
+                self.result_button = tk.Button(self.root, text=f"Open Save", command=lambda: self.open_table_gui(filename))
+            else:
+                self.result_button = tk.Button(self.root, text=f"Open {filename}", command=lambda: self.open_table_gui(filename))
+        else:
+            self.result_button = tk.Button(self.root, text=f"Open {filename}", command=lambda: self.open_table_gui(filename))
+
         self.result_button.grid(row=5, column=1, pady=10, sticky="ew")
         self.result_button.config(width=20, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
         self.result_button.bind("<Enter>", on_enter)

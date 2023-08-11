@@ -38,8 +38,6 @@ def start_plagscan(gui: mainGUI):
         gui.info_textline.config(text="ZIP-Datei entpackt")
 
     gui.progressbar.grid(row=4, column=1, sticky="ew")
-    if gui.result_button is not None:
-        gui.result_button.grid_forget()
     gui.root.update()
 
     gui.info_textline.config(text="Files werden entpackt...")
