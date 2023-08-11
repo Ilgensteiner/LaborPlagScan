@@ -5,4 +5,5 @@ then
     echo Installing missing packages...
     pip install -r requirements.txt
 fi
-nohup python3 main.py &
+nohup python3 run.py &
+app.Activate()
