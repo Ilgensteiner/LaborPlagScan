@@ -4,4 +4,5 @@ if errorlevel 1 (
     echo Installing missing packages...
     pip install -r requirements.txt
 )
-start pythonw main.py
+start pythonw run.py
+app.Activate()
