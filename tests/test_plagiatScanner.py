@@ -8,6 +8,9 @@ import json
 from laborPlagScan.plagiatScanner import plagscan
 from laborPlagScan.fileEditor import extract_zip, unpackZipFiles, save_auswertung_to_file
 
+def get_test_resource_path(filename):
+    return os.path.join(os.path.dirname(__file__), 'resources', filename)
+
 class TestPlagScan(unittest.TestCase):
 
     def setUp(self):
@@ -47,7 +50,8 @@ class TestPlagScan(unittest.TestCase):
 
             # Mock für mainGUI.display_msgbox, um die Anzeige der Message-Box zu unterdrücken
             with unittest.mock.patch('laborPlagScan.mainGUI.display_msgbox') as msgbox_mock:
-                msgbox_mock.return_value = None
+                msgbox_mock.side_effect = self.stat_mock
+                self.stat_text = ""
 
                 # Testaufruf
                 plagscan(self.students_folder, self.gui_mock)
@@ -57,6 +61,9 @@ class TestPlagScan(unittest.TestCase):
                     result = json.load(f)
                 with open('tests/resources/sollResult.json', 'r') as f:
                     expected = json.load(f)
+
+                stat_text_expectet = "PlagScan\nPlagScan abgeschlossen!\n\nAnzahl Plagiate: 1\nAnzahl Studenten mit Plagiat: 5"
+                self.assertEqual(self.stat_text, stat_text_expectet)
 
                 self.assertEqual(result, expected)
 
@@ -96,6 +103,9 @@ class TestPlagScan(unittest.TestCase):
         # Ersetzen Sie den Speicherpfad und speichern Sie das Ergebnis
         path = 'tests/resources/'
         save_auswertung_to_file(sorted_plagiat_dict, path=path)
+
+    def stat_mock(self, title, text):
+        self.stat_text = title + "\n" + text
 
 
 if __name__ == '__main__':
