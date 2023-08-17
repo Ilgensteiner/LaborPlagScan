@@ -246,8 +246,14 @@ def plagscan(students_folder: str, gui: mainGUI):
         student_files_dict = find_java_files(os.path.join(students_folder, student_folder))
         if len(student_files_dict) == 0:
             print("Keine Java-Files gefunden für Student: " + student_folder)
-        student_dict[student_folder] = student_files_dict
+        else:
+            student_dict[student_folder] = student_files_dict
         gui.update_progressbar_value(1)
+
+    # Wenn keine Studenten bzw Java-Dateien gefunden wurden, dann abbrechen
+    if len(student_dict) == 0:
+        mainGUI.display_msgbox("Keine Studenten gefunden", "Es wurden keine Studenten gefunden. Bitte überprüfen Sie die ZIP-Datei.")
+        return
 
     # 3. Schleife für alle Kombinationen von Studenten
     plagiat_dict = {}
