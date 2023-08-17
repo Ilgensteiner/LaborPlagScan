@@ -5,8 +5,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from tkinter.ttk import Frame
 
-import laborPlagScan.FileEditor as FileEditor
-import laborPlagScan.PlagiatScanner as PlagiatScanner
+import laborPlagScan.fileEditor as FileEditor
+import laborPlagScan.plagiatScanner as PlagiatScanner
 
 lastbutton = None  # Globale Variable
 checked_buttons = []  # Globale Variable
