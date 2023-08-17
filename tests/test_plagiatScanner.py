@@ -8,6 +8,9 @@ import json
 from laborPlagScan.plagiatScanner import plagscan
 from laborPlagScan.fileEditor import extract_zip, unpackZipFiles, save_auswertung_to_file
 
+def get_test_resource_path(filename):
+    return os.path.join(os.path.dirname(__file__), 'resources', filename)
+
 class TestPlagScan(unittest.TestCase):
 
     def setUp(self):
@@ -23,16 +26,16 @@ class TestPlagScan(unittest.TestCase):
         warnings.simplefilter("ignore", category=DeprecationWarning)
 
         # Entpacken der ZIP-Datei
-        self.students_folder = extract_zip('test/resources/Test_Labor.zip')
+        self.students_folder = extract_zip('tests/resources/Test_Labor.zip')
         self.students_folder = unpackZipFiles(self.students_folder, self.gui_mock)
 
     def tearDown(self):
         # Testdateien aufräumen
-        last_result_path = 'test/resources/last_result.json'
+        last_result_path = 'tests/resources/last_result.json'
         if os.path.exists(last_result_path):
             os.remove(last_result_path)
-        if os.path.exists("test/resources/Test_Labor"):
-            shutil.rmtree("test/resources/Test_Labor")
+        if os.path.exists("tests/resources/Test_Labor"):
+            shutil.rmtree("tests/resources/Test_Labor")
 
         # Arbeitsverzeichnis zurücksetzen
         os.chdir(self.original_cwd)
@@ -47,16 +50,20 @@ class TestPlagScan(unittest.TestCase):
 
             # Mock für mainGUI.display_msgbox, um die Anzeige der Message-Box zu unterdrücken
             with unittest.mock.patch('laborPlagScan.mainGUI.display_msgbox') as msgbox_mock:
-                msgbox_mock.return_value = None
+                msgbox_mock.side_effect = self.stat_mock
+                self.stat_text = ""
 
                 # Testaufruf
                 plagscan(self.students_folder, self.gui_mock)
 
                 # Überprüfen Sie das Ergebnis
-                with open('test/resources/last_result.json', 'r') as f:
+                with open('tests/resources/last_result.json', 'r') as f:
                     result = json.load(f)
-                with open('test/resources/sollResult.json', 'r') as f:
+                with open('tests/resources/sollResult.json', 'r') as f:
                     expected = json.load(f)
+
+                stat_text_expectet = "PlagScan\nPlagScan abgeschlossen!\n\nAnzahl Plagiate: 1\nAnzahl Studenten mit Plagiat: 5"
+                self.assertEqual(self.stat_text, stat_text_expectet)
 
                 self.assertEqual(result, expected)
 
@@ -70,7 +77,7 @@ class TestPlagScan(unittest.TestCase):
                 msgbox_mock.return_value = None
 
                 # Testaufruf mit leerem Ordner
-                empty_folder_path = "test/resources/Empty_Labor"  # Pfad zum leeren Testordner
+                empty_folder_path = "tests/resources/Empty_Labor"  # Pfad zum leeren Testordner
                 plagscan(empty_folder_path, self.gui_mock)
 
                 # Überprüfen Sie das erwartete Verhalten (kann je nach Anforderungen angepasst werden)
@@ -86,7 +93,7 @@ class TestPlagScan(unittest.TestCase):
                 msgbox_mock.return_value = None
 
                 # Testaufruf mit einem Ordner ohne Java-Dateien
-                no_java_folder_path = "test/resources/NoJars_Labor/Updated_Labor/extracted"  # Pfad zum Testordner ohne Java-Dateien
+                no_java_folder_path = "tests/resources/NoJars_Labor/Updated_Labor/extracted"  # Pfad zum Testordner ohne Java-Dateien
                 plagscan(no_java_folder_path, self.gui_mock)
 
                 # Überprüfen Sie das erwartete Verhalten (kann je nach Anforderungen angepasst werden)
@@ -94,8 +101,11 @@ class TestPlagScan(unittest.TestCase):
 
     def save_mock(self, sorted_plagiat_dict):
         # Ersetzen Sie den Speicherpfad und speichern Sie das Ergebnis
-        path = 'test/resources/'
+        path = 'tests/resources/'
         save_auswertung_to_file(sorted_plagiat_dict, path=path)
+
+    def stat_mock(self, title, text):
+        self.stat_text = title + "\n" + text
 
 
 if __name__ == '__main__':
