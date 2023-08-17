@@ -3,8 +3,8 @@ import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 import pygame
 
-import laborPlagScan.FileEditor as FileEditor
-import laborPlagScan.PlagiatScanner as PlagiatScanner
+import laborPlagScan.fileEditor as FileEditor
+import laborPlagScan.plagiatScanner as PlagiatScanner
 import laborPlagScan.tableGui as tableGui
 
 

@@ -5,7 +5,7 @@ from tkinter import messagebox
 import math
 import re
 
-import laborPlagScan.FileEditor as FileEditor
+import laborPlagScan.fileEditor as FileEditor
 import laborPlagScan.mainGUI as mainGUI
 
 java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
