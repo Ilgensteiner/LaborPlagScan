@@ -1,4 +1,3 @@
-import os.path
 import re
 import threading
 import tkinter as tk
@@ -171,11 +170,11 @@ class TableGui:
             for student_infos in plagiat[1][1]:
                 ttk.Label(self.inner_frame, text=student_infos[0], background="white", foreground="black", padding=5,
                           font=("Calibri", 12), borderwidth=2, relief="solid").grid(row=0, column=column, sticky="nsew")
-                ttk.Label(self.inner_frame, text=os.path.basename(student_infos[1]), background="white", padding=5,
+                ttk.Label(self.inner_frame, text=student_infos[1][0], background="white", padding=5,
                           foreground="black", font=("Calibri", 12), borderwidth=2, relief="solid").grid(row=1,
                                                                                                         column=column,
                                                                                                         sticky="nsew")
-                ttk.Label(self.inner_frame, text=str(FileEditor.read_file(student_infos[1], lines=student_infos[2])),
+                ttk.Label(self.inner_frame, text=str(FileEditor.get_string_lines(student_infos[1][1], lines=student_infos[2])),
                           background="white", foreground="black", font=("Calibri", 12), borderwidth=2, padding=5,
                           relief="solid", anchor="nw").grid(row=2, column=column, sticky="nsew")
                 column += 1
@@ -194,14 +193,14 @@ class TableGui:
         stud_files = {}
         for plagiat in self.items:
             for stud in plagiat[1]:
-                stud_files.setdefault(stud[0], {}).setdefault(stud[1], []).append(stud[2])
+                stud_files.setdefault(stud[0], {}).setdefault(stud[1][1], []).append([stud[1][0], stud[2]])
         # display files
         for i, stud in enumerate(filtered_studs):
             ttk.Label(self.inner_frame, text=stud, background="white", foreground="black", padding=5,
                       font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=0, column=i, sticky="nsew")
             j = 1
             for file in stud_files[stud]:
-                ttk.Label(self.inner_frame, text=os.path.basename(file), background="white", foreground="black",
+                ttk.Label(self.inner_frame, text=stud_files[stud][file][0][0], background="white", foreground="black",
                           padding=5, font=("Calibri", 12), borderwidth=2, relief="solid").grid(row=j, column=i,
                                                                                                sticky="nsew")
                 j += 1
@@ -209,7 +208,7 @@ class TableGui:
                                    borderwidth=2, relief="solid")
                 textfeld.grid(row=j, column=i, sticky="nsew")
                 textfeld.tag_config("red", foreground="red")
-                textfeld.insert(tk.END, re.sub(r' {3,}', '   ', str(FileEditor.read_file(file)).expandtabs(2)))
+                textfeld.insert(tk.END, re.sub(r' {3,}', '   ', str(file).expandtabs(2)))
 
                 height = int(textfeld.index('end-1c').split('.')[0])
                 max_line_length = max([len(line.strip("\n\t\r")) for line in textfeld.get("1.0", "end-1c").split("\n")])
@@ -217,7 +216,7 @@ class TableGui:
                                    xscrollcommand=lambda *args: None, height=height, width=int(max_line_length * 0.9),
                                    padx=5)
                 for plag in stud_files[stud][file]:
-                    textfeld.tag_add("red", str(plag[0] + 1) + ".0", str(plag[1] + 1) + ".599")
+                    textfeld.tag_add("red", str(plag[1][0] + 1) + ".0", str(plag[1][1] + 1) + ".599")
                 j += 1
 
         self.root.columnconfigure(0, weight=1)
@@ -286,6 +285,11 @@ class TableGui:
         btn_expdf.grid(row=0, column=0, sticky="e")
 
     def on_open_einzelplagiat_button(self):
+        global lastbutton
+
+        if lastbutton is not None:
+            lastbutton = None
+
         self.create_table_plag()
         self.display_plagiat()
         self.create_button_panel_plagiat()
@@ -519,18 +523,18 @@ class TableGui:
         items = filter_dict(self.data, studentlist)
         for item in items:
             for plagiat in item[1]:
-                if plagiat[0] + str(os.path.basename(plagiat[1])) not in filedict:
+                if plagiat[0] + str(plagiat[1][0]) not in filedict:
                     file_as_list = []
-                    for c, line in enumerate(FileEditor.read_file(plagiat[1]).split("\n")):
+                    for c, line in enumerate(plagiat[1][1].split("\n")):
                         file_as_list.append([c, line])
                     file = PlagiatScanner.filter_lines(file_as_list)
-                    filedict[plagiat[0] + str(os.path.basename(plagiat[1]))] = file
+                    filedict[plagiat[0] + str(plagiat[1][0])] = file
 
-                for i, file_line in enumerate(filedict[plagiat[0] + str(os.path.basename(plagiat[1]))]):
+                for i, file_line in enumerate(filedict[plagiat[0] + str(plagiat[1][0])]):
                     if plagiat[2][0] <= file_line[0] <= plagiat[2][1] and not \
-                            filedict[plagiat[0] + str(os.path.basename(plagiat[1]))][i][1].startswith("plag###"):
-                        filedict[plagiat[0] + str(os.path.basename(plagiat[1]))][i][1] = "plag###" + filedict[
-                            plagiat[0] + str(os.path.basename(plagiat[1]))][i][1]
+                            filedict[plagiat[0] + str(plagiat[1][0])][i][1].startswith("plag###"):
+                        filedict[plagiat[0] + str(plagiat[1][0])][i][1] = "plag###" + filedict[
+                            plagiat[0] + str(plagiat[1][0])][i][1]
 
         row_all = 0
         row_plag = 0

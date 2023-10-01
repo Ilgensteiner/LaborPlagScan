@@ -1,3 +1,4 @@
 /laborPlagScan/result/
 .idea
-.venv/
+.venv
+/.venv

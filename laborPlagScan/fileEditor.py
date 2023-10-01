@@ -103,6 +103,7 @@ def load_auswertung_from_file(filename=None) -> dict:
     return data
 
 
+#TODO: Remove Line-Part and check usage
 def read_file(filepath, lines=None):
     """
     :param filepath: Pfad zur Datei
@@ -111,24 +112,50 @@ def read_file(filepath, lines=None):
 
     with open(filepath, 'r') as file:
         content = file.readlines()
-        if lines:
-            content_parts = []
-            start, end = lines
-            # before
-            for i in content[max(start-5, 0):max(start-1, 0)]:
-                content_parts.append(i)
-            content_parts.append("\n\t\t------PLAGIAT START------\n\n")
-
-            # plagiat
-            for i in content[max(start-1, 0):end]:
-                content_parts.append(i)
-
-            # after
-            content_parts.append("\n\t\t-------PLAGIAT END-------\n\n")
-            for i in content[end:min(end+5, len(content))]:
-                content_parts.append(i)
-            return ''.join(content_parts)
+        # if lines:
+        #     content_parts = []
+        #     start, end = lines
+        #     # before
+        #     for i in content[max(start-5, 0):max(start-1, 0)]:
+        #         content_parts.append(i)
+        #     content_parts.append("\n\t\t------PLAGIAT START------\n\n")
+        #
+        #     # plagiat
+        #     for i in content[max(start-1, 0):end]:
+        #         content_parts.append(i)
+        #
+        #     # after
+        #     content_parts.append("\n\t\t-------PLAGIAT END-------\n\n")
+        #     for i in content[end:min(end+5, len(content))]:
+        #         content_parts.append(i)
+        #     return ''.join(content_parts)
         return ''.join(content)
+
+
+def get_string_lines(string: str, lines: list):
+    """Returns the first 'lines' lines of the string"""
+
+    content = string.split("\n")
+    for i in range(len(content)):
+        content[i] += "\n"
+
+    content_parts = []
+    start, end = lines
+    # before
+    for i in content[max(start - 5, 0):max(start - 1, 0)]:
+        content_parts.append(i)
+    content_parts.append("\n\t\t------PLAGIAT START------\n\n")
+
+    # plagiat
+    for i in content[max(start - 1, 0):end]:
+        content_parts.append(i)
+
+    # after
+    content_parts.append("\n\t\t-------PLAGIAT END-------\n\n")
+    for i in content[end:min(end + 5, len(content))]:
+        content_parts.append(i)
+
+    return ''.join(content_parts)
 
 
 def table_to_pdf_export(savepath: str, data: list):
