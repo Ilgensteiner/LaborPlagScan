@@ -190,7 +190,6 @@ class TableGui:
         self.root.update()
 
     def display_stud_vergleich(self, filtered_studs):
-        #TODO: Buggy
         """Anzeige der Studierenden im Vergleichsmodus"""
         stud_files = {}
         for plagiat in self.items:
@@ -202,7 +201,7 @@ class TableGui:
                       font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=0, column=i, sticky="nsew")
             j = 1
             for file in stud_files[stud]:
-                ttk.Label(self.inner_frame, text=stud_files[stud][file][0], background="white", foreground="black",
+                ttk.Label(self.inner_frame, text=stud_files[stud][file][0][0], background="white", foreground="black",
                           padding=5, font=("Calibri", 12), borderwidth=2, relief="solid").grid(row=j, column=i,
                                                                                                sticky="nsew")
                 j += 1
@@ -210,7 +209,7 @@ class TableGui:
                                    borderwidth=2, relief="solid")
                 textfeld.grid(row=j, column=i, sticky="nsew")
                 textfeld.tag_config("red", foreground="red")
-                textfeld.insert(tk.END, re.sub(r' {3,}', '   ', str(stud_files[stud][file][1]).expandtabs(2)))
+                textfeld.insert(tk.END, re.sub(r' {3,}', '   ', str(file).expandtabs(2)))
 
                 height = int(textfeld.index('end-1c').split('.')[0])
                 max_line_length = max([len(line.strip("\n\t\r")) for line in textfeld.get("1.0", "end-1c").split("\n")])
@@ -218,7 +217,7 @@ class TableGui:
                                    xscrollcommand=lambda *args: None, height=height, width=int(max_line_length * 0.9),
                                    padx=5)
                 for plag in stud_files[stud][file]:
-                    textfeld.tag_add("red", str(plag[0] + 1) + ".0", str(plag[1] + 1) + ".599")
+                    textfeld.tag_add("red", str(plag[1][0] + 1) + ".0", str(plag[1][1] + 1) + ".599")
                 j += 1
 
         self.root.columnconfigure(0, weight=1)
