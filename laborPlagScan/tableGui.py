@@ -286,7 +286,10 @@ class TableGui:
 
     def on_open_einzelplagiat_button(self):
         global lastbutton
-        lastbutton = None
+
+        if lastbutton is not None:
+            lastbutton = None
+
         self.create_table_plag()
         self.display_plagiat()
         self.create_button_panel_plagiat()
