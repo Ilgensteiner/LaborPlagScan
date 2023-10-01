@@ -1,4 +1,3 @@
-import os.path
 import re
 import threading
 import tkinter as tk
@@ -286,6 +285,8 @@ class TableGui:
         btn_expdf.grid(row=0, column=0, sticky="e")
 
     def on_open_einzelplagiat_button(self):
+        global lastbutton
+        lastbutton = None
         self.create_table_plag()
         self.display_plagiat()
         self.create_button_panel_plagiat()
