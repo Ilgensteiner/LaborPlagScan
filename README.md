@@ -1,13 +1,11 @@
-
 # LaborPlagScan
 Labor Plagiat Scanner für Prog. an der HS-Harz. Ziel ist es die Abgaben der Studierenden auf Plagiate zu überprüfen.
 
 ## Installation
 
-Du benötigst Python 3.11. Stelle sicher, dass während der Installation die Option "Add to PATH" aktiviert ist. Falls du Python noch nicht installiert hast, kannst du es [hier](https://www.python.org/downloads/) herunterladen. 
+1. Du benötigst Python 3.10. Stelle sicher, dass während der Installation die Option "Add to PATH" aktiviert ist. Falls du Python noch nicht installiert hast, kannst du es [hier](https://www.python.org/downloads/) herunterladen. <br>(Wenn nötig) Eine Anleitung, wie du Python zum PATH hinzufügen kannst, findest du [hier](https://datatofish.com/add-python-to-windows-path/).
 
-(Wenn nötig) 
-Eine Anleitung, wie du Python zum PATH hinzufügen kannst, findest du [hier](https://datatofish.com/add-python-to-windows-path/).
+2. `run.bat` (Win) bzw. `run.sh` (Linux) ausführen um die erstmalige Installation zu starten.
 
 ## Anleitung
 
