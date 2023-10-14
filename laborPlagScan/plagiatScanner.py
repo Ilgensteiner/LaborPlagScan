@@ -7,6 +7,7 @@ import re
 
 import laborPlagScan.fileEditor as FileEditor
 import laborPlagScan.mainGUI as mainGUI
+import laborPlagScan.basicConfig as basicConfig
 
 java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
                "default", "double", "do", "else", "enum", "extends", "final", "finally", "float", "for", "goto",
@@ -56,9 +57,14 @@ def start_plagscan(gui: mainGUI):
 
 
 def file_to_list(filepath: str) -> list:
+    # TODO: Try noch verbesern, sodass File auch ignoriert wird im vergleich wenn nicht lesbar
     """Converts a file to a list of lines, each line is a list with the line number and the line itself"""
     with open(filepath, 'r') as file:
-        lines = file.readlines()
+        try:
+            lines = file.readlines()
+        except UnicodeDecodeError as e:
+            basicConfig.handle_exception(type(e), e, None, "Mindestens eine Datei konnte nicht gelesen werden!", "File: " + filepath + " konnte nicht gelesen werden!")
+            return []
 
     new_lines = []
     for i, line in enumerate(lines):
