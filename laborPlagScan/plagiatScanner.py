@@ -57,7 +57,6 @@ def start_plagscan(gui: mainGUI):
 
 
 def file_to_list(filepath: str) -> list:
-    # TODO: Try noch verbesern, sodass File auch ignoriert wird im vergleich wenn nicht lesbar
     """Converts a file to a list of lines, each line is a list with the line number and the line itself"""
     with open(filepath, 'r') as file:
         try:
@@ -108,12 +107,19 @@ def replace_words_in_file(file_list: list, word_list: set) -> list:
 
 
 def find_java_files(folder_path):
-    """Returns a dictionary with all java files in the given folder and its subfolders"""
+    """Returns a dictionary with all java files in the given folder and its subfolders,
+    while ignoring folders in the ignore_folders list and ignoring case."""
+    ignore_folders = ["__MACOSX"]
+
+    # Konvertiere die Liste der zu ignorierenden Ordner in Kleinbuchstaben
+    ignore_folders = [folder.lower() for folder in ignore_folders]
+
     java_files = {}
     for root, dirs, files in os.walk(folder_path):
         for file in files:
-            if file.endswith(".java"):
-                java_files[file] = os.path.join(root, file)
+            if file.lower().endswith(".java"):
+                if not any(folder in root.lower().split(os.sep) for folder in ignore_folders):
+                    java_files[file] = os.path.join(root, file)
     return java_files
 
 
@@ -162,6 +168,9 @@ def compare_files(file1_path: str, file2_path: str) -> list:
     """Compares two files and returns the lines of code that are the same in both files"""
     datei1_lines_orginal = file_to_list(file1_path)
     datei2_lines_orginal = file_to_list(file2_path)
+
+    if datei1_lines_orginal == [] or datei2_lines_orginal == []:
+        return []
 
     datei1_lines_prepared = replace_words_in_file(datei1_lines_orginal, java_syntax)
     datei2_lines_prepared = replace_words_in_file(datei2_lines_orginal, java_syntax)
