@@ -44,7 +44,7 @@ def unpackZipFiles(folder_path: str, gui: mainGUI):
         file_path = os.path.join(folder_path, file)
         print(f"Entpacke Datei '{file}'")
         with zipfile.ZipFile(file_path, 'r') as zip_file:
-            extract_path = os.path.join(folder_path, "extracted", file.replace(".zip", "").replace(" - ", "_"))
+            extract_path = os.path.join(folder_path, "extracted", file.replace(".zip", "").replace(" - ", "_").replace(".java", "").replace(".", "_"))
             zip_file.extractall(path=extract_path)
 
     # 5. Wenn keine ZIP-Datei gefunden wurde, nach & in Unterordnern suchen
