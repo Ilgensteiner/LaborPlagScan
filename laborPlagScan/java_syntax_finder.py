@@ -2,7 +2,7 @@
 import re
 import laborPlagScan.plagiatScanner as PlagiatScanner
 
-java_syntax = PlagiatScanner.java_syntax
+java_syntax = PlagiatScanner.java_syntax_words
 """Nur um die Syntax zu testen und zu filtern"""
 
 
