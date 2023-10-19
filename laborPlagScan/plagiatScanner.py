@@ -9,22 +9,23 @@ import laborPlagScan.fileEditor as FileEditor
 import laborPlagScan.mainGUI as mainGUI
 import laborPlagScan.basicConfig as basicConfig
 
-java_syntax = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
-               "default", "double", "do", "else", "enum", "extends", "final", "finally", "float", "for", "goto",
-               "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new", "package",
-               "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
-               "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while", "true",
-               "false", "null", "String", "System", "out", "println", "print", "Scanner", "nextInt", "nextLine",
-               "new", "File", "exists", "length", "length()", "charAt", "substring", "equals", "equalsIgnoreCase",
-               "next", "hasNext", "hasNextLine", "hasNextInt", "hasNextDouble", "hasNextBoolean", "hasNextByte",
-               "hasNextFloat", "hasNextLong", "hasNextShort", "hasNextBigDecimal", "hasNextBigInteger",
-               "hasNextBigInteger", "hasNextBigDecimal", "hasNextBigInteger", "{", "}", "(", ")", "[", "]", ";", "=",
-               ":", ",", "+", "-", "*", "%", "++", "--", "==", "!=", ">", "<", ">=", "<=", "&&", "||", "!", "&",
-               "|", "^", "~", "<<", ">>", ">>>", "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=", ">>>=",
-               "?", "Main", "main", "args", "array", "temp", "Exception", "printStackTrace", "getMessage", "abstrakt",
-               "@override", "@Override", "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize",
-               "getClass",
-               "IllegalArgumentException"}
+java_syntax_words = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
+                     "default", "double", "do", "else", "enum", "extends", "final", "finally", "float", "for", "goto",
+                     "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new", "package",
+                     "private", "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
+                     "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while", "true",
+                     "false", "null", "String", "System", "out", "println", "print", "Scanner", "nextInt", "nextLine",
+                     "new", "File", "exists", "length", "length()", "charAt", "substring", "equals", "equalsIgnoreCase",
+                     "next", "hasNext", "hasNextLine", "hasNextInt", "hasNextDouble", "hasNextBoolean", "hasNextByte",
+                     "hasNextFloat", "hasNextLong", "hasNextShort", "hasNextBigDecimal", "hasNextBigInteger",
+                     "hasNextBigInteger", "hasNextBigDecimal", "hasNextBigInteger", "Main", "main", "args", "array",
+                     "temp", "Exception", "printStackTrace", "getMessage", "abstrakt", "@override", "@Override",
+                     "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize", "getClass",
+                     "IllegalArgumentException"}
+
+java_syntax_chars = {"{", "}", "(", ")", "[", "]", ";", "=", ":", ",", "+", "-", "*", "%", "++", "--", "==", "!=", ">",
+                     "<", ">=", "<=", "&&", "||", "!", "&", "|", "^", "~", "<<", ">>", ">>>", "+=", "-=", "*=", "/=",
+                     "%=", "&=", "|=", "^=", "<<=", ">>=", ">>>=", "?"}
 
 
 def start_plagscan(gui: mainGUI):
@@ -73,7 +74,7 @@ def file_to_list(filepath: str) -> list:
     return new_lines
 
 
-def replace_words_in_file(file_list: list, word_list: set) -> list:
+def replace_words_in_file(file_list: list, word_list: set, java_operator_set: set) -> list:
     """Replaces all variables in a file with a placeholder and deletes all comments, and blank lines"""
     new_lines = []
     commentblock = False
@@ -97,10 +98,23 @@ def replace_words_in_file(file_list: list, word_list: set) -> list:
         else:
             if '//' in new_line[1]:
                 new_line[1] = new_line[1].split('//')[0] + '\n'
+
+            # Leere print ausdrücke entfernen
+            new_line[1] = re.sub(r'System\.out\.println\(\s*(?:\\n|\\t)*\s*\);', '', new_line[1])
+
+            new_line[1] = new_line[1].replace('{', '').replace('}', '')
             words = re.findall(r'\b\w+\b', new_line[1])
             for word in words:
-                if word not in word_list:
+                if word not in word_list or word not in java_operator_set:
                     new_line[1] = re.sub(r'\b' + re.escape(word) + r'\b', 'x', new_line[1])
+
+            # leerzeichen um Java zeichen und Operatoren entfernen
+            pattern = r'\s*(' + '|'.join([re.escape(ch) for ch in sorted(java_syntax_chars, key=len, reverse=True)]) + r')\s*'
+            new_line[1] = re.sub(pattern, r'\1', new_line[1])
+
+            # alles innerhalb von Anführungszeichen ersetzen durch ein "x"
+            new_line[1] = re.sub(r'(["\']).*(["\'])', 'x', new_line[1])
+
             new_lines.append(new_line)
 
     return new_lines
@@ -172,8 +186,8 @@ def compare_files(file1_path: str, file2_path: str) -> list:
     if datei1_lines_orginal == [] or datei2_lines_orginal == []:
         return []
 
-    datei1_lines_prepared = replace_words_in_file(datei1_lines_orginal, java_syntax)
-    datei2_lines_prepared = replace_words_in_file(datei2_lines_orginal, java_syntax)
+    datei1_lines_prepared = replace_words_in_file(datei1_lines_orginal, java_syntax_words, java_syntax_chars)
+    datei2_lines_prepared = replace_words_in_file(datei2_lines_orginal, java_syntax_words, java_syntax_chars)
 
     for line in datei1_lines_prepared:
         line[1] = line[1].strip()
