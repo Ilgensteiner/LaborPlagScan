@@ -416,6 +416,11 @@ class TableGui:
         global checked_buttons
 
         for student in stats[3]:
+            accordance = self.stud_plagiat_accordance(student.split(" - "))
+            # TODO: die 35 % Grenze Variabel in Settings machen
+            if accordance <= 35:
+                delete_stud_from_dict(self.data, student.split(" - "))
+                continue
             row += 1
 
             button_frame = tk.Frame(data_frame)
@@ -433,7 +438,7 @@ class TableGui:
             name_button.bind("<Enter>", on_enter)
             name_button.bind("<Leave>", on_leave)
 
-            accordance_button_text = str(self.stud_plagiat_accordance(student.split(" - "))) + " %"
+            accordance_button_text = str(accordance) + " %"
             accordance_button = tk.Button(button_frame,
                                           text=accordance_button_text,
                                           bg="white",
@@ -466,6 +471,9 @@ class TableGui:
                  font=("Calibri", 12), borderwidth=0.5, relief="solid", anchor="w").grid(row=row, column=0, sticky="ew")
 
         for student in stats[2]:
+            accordance = self.stud_plagiat_accordance([student])
+            if accordance == 0:
+                continue
             row += 1
 
             button_frame = tk.Frame(data_frame)
@@ -483,7 +491,7 @@ class TableGui:
             name_button.bind("<Enter>", on_enter)
             name_button.bind("<Leave>", on_leave)
 
-            accordance_button_text = str(self.stud_plagiat_accordance([student])) + " %"
+            accordance_button_text = str(accordance) + " %"
             accordance_button = tk.Button(button_frame, text=accordance_button_text,
                                           bg="white",
                                           foreground="black",
@@ -521,6 +529,8 @@ class TableGui:
         """
         filedict = {}
         items = filter_dict(self.data, studentlist)
+        if len(items) == 0:  # Wenn kein Plagiat gefunden wurde
+            return 0
         for item in items:
             for plagiat in item[1]:
                 if plagiat[0] + str(plagiat[1][0]) not in filedict:
