@@ -10,6 +10,9 @@ import laborPlagScan.plagiatScanner as PlagiatScanner
 lastbutton = None  # Globale Variable
 checked_buttons = []  # Globale Variable
 
+ACCORDANCE_LIMIT = 35  # Prozentuale Übereinstimmung, ab der ein Plagiat als Plagiat gilt
+STUDENT_LIMIT = 5
+
 
 def filter_dict(data: dict, filters: list):
     """Filtert ein Dictionary (StudPlagData) nach den angegebenen Filtern (Liste mit Studentennamen)"""
@@ -62,6 +65,14 @@ def scroll_to_row(canvas, row):
 
 
 def delete_stud_from_dict(data: dict, stud: list):
+    # TODO: Wenn mehrere Studs in einem Plagiat sind, dann wird das Plagiat nicht gelöscht, sondern wenn möglich dupliziert?
+    #  (z.B. 3(+) Studenten in einem Plagiat, 2 davon werden als kein Plagiat markiert. Dann wird das Plagiat nicht gelöscht,
+    #  sondern dupliziert, der 3.(+) Student ist in beiden Plagiaten die Studenten die als kein Plagiat gekennzeichnet wurden,
+    #  werden auf die duplikate aufgeteilt der eine ins Original der andere in die Kopie.
+    #  Weitere Überlegung: Wenn mehr als 3 Studenten in einem Plagiat sind, müssen x Plagiate gemacht werden sodass immer
+    #  nur 2 Studenten in einem Plagiat sind, damit es nicht zu dopplungen kommt.
+    #  !!!!
+    #  !AB 5 Studenten in einem Plagiat, Studs einfach rauslöschen ohne kopie!
     """Löscht Student/-en aus dem Dictionary"""
     del_keys_list = []
     for key, value in data.items():
@@ -417,8 +428,7 @@ class TableGui:
 
         for student in stats[3]:
             accordance = self.stud_plagiat_accordance(student.split(" - "))
-            # TODO: die 35 % Grenze Variabel in Settings machen
-            if accordance <= 35:
+            if accordance <= ACCORDANCE_LIMIT:
                 delete_stud_from_dict(self.data, student.split(" - "))
                 continue
             row += 1
@@ -528,9 +538,11 @@ class TableGui:
         :return: %-value of students with plagiarism
         """
         filedict = {}
+        print(studentlist)
         items = filter_dict(self.data, studentlist)
         if len(items) == 0:  # Wenn kein Plagiat gefunden wurde
             return 0
+        print(items)
         for item in items:
             for plagiat in item[1]:
                 if plagiat[0] + str(plagiat[1][0]) not in filedict:
