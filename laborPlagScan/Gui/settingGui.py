@@ -64,10 +64,17 @@ class SettingsGUI:
 
         self.filters = read_filters_from_file()
         self.entries = []
+        self.settingsVars = {}
 
         self.filter_row += 1
         for plag_filter in self.filters:
-            self.add_filter_row(plag_filter)
+            if isinstance(plag_filter, dict):
+                for key, value in plag_filter.items():
+                    self.add_filter_settings(key, value)
+            elif plag_filter == '':
+                continue
+            else:
+                self.add_filter_row(plag_filter)
 
         self.add_button = ttk.Button(self.filter_frame, text="Filter hinzufügen", command=self.add_filter_row)
         self.add_button.grid(row=100, column=0, padx=10)
@@ -96,6 +103,24 @@ class SettingsGUI:
 
         self.entries.append((row, entry))
 
+    def add_filter_settings(self, name, value):
+        print(name, value)
+        row = ttk.Frame(self.filter_frame)
+        row.grid(row=self.filter_row, column=0, sticky="ew")
+        self.filter_row += 1
+
+        if name == "ignorePrintStatemants":
+            checkbox = ttk.Checkbutton(row, text="Print-Statements ignorieren", variable="var", onvalue=True, offvalue=False)
+            checkbox.pack(side=tk.LEFT, padx=(0, 5))
+            checkbox.setvar("var", value)
+            self.settingsVars["ignorePrintStatemants"] = checkbox
+        elif name == "PlagiatAlert":
+            ttk.Label(row, text="Plagiate speichern ab %:").pack(side=tk.LEFT, padx=(0, 5))
+            entry = ttk.Entry(row)
+            entry.pack(padx=(0, 5))
+            entry.insert(0, value)
+            self.settingsVars["PlagiatAlert"] = entry
+
     def delete_row(self, row, entry):
         row.destroy()
         self.entries.remove((row, entry))
@@ -103,12 +128,15 @@ class SettingsGUI:
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def save(self):
+        settings_dict = {"ignorePrintStatemants": self.settingsVars["ignorePrintStatemants"].getvar("var"), "PlagiatAlert": self.settingsVars["PlagiatAlert"].get()}
+        print(settings_dict)
         updated_filters = [entry.get() for _, entry in self.entries]
+        updated_filters.insert(0, settings_dict)
         save_filters_to_file(updated_filters)
         self.master.destroy()
 
     def reset(self):
-        filters = ['', 'this.x = x;', 'Regex:(protected|private|public)\s(static\s)?(String|double|float|boolean|int)\s(x;)', 'Regex:(public)\s(String|double|float|boolean|int)\s(x\(\) {)', 'Regex:(return)\s(x;)', 'Regex:(public\svoid\sx\()(String|double|float|boolean|int)\s(x\) {)', 'Regex:(this\.x\s=\sx;)', 'Regex:(\})']
+        filters = [{"ignorePrintStatemants": True, "PlagiatAlert": 30}, '', 'this.x = x;', 'Regex:(protected|private|public)\s(static\s)?(String|double|float|boolean|int)\s(x;)', 'Regex:(public)\s(String|double|float|boolean|int)\s(x\(\) {)', 'Regex:(return)\s(x;)', 'Regex:(public\svoid\sx\()(String|double|float|boolean|int)\s(x\) {)', 'Regex:(this\.x\s=\sx;)', 'Regex:(\})']
         save_filters_to_file(filters)
         self.master.destroy()
 
