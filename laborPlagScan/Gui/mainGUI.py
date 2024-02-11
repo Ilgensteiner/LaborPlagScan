@@ -5,7 +5,8 @@ import pygame
 
 import laborPlagScan.fileEditor as FileEditor
 import laborPlagScan.plagiatScanner as PlagiatScanner
-import laborPlagScan.tableGui as tableGui
+import laborPlagScan.Gui.tableGui as tableGui
+import laborPlagScan.Gui.settingGui as settingsGui
 
 
 def on_enter(e):
@@ -40,15 +41,21 @@ class GUI:
         self.zip_selection = tk.Label(self.root, text="", bg="#0a3055", fg="white", font=("Calibri", 12))
         self.zip_selection.grid(row=1, column=0, columnspan=3, sticky="ew")
 
+        settings_button = tk.Button(self.root, text="Einstellungen⚙️", command=self.open_settings)
+        settings_button.grid(row=2, column=1, pady=10, sticky="ew")
+        settings_button.config(bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
+        settings_button.bind("<Enter>", on_enter)
+        settings_button.bind("<Leave>", on_leave)
+
         start_button = tk.Button(self.root, text="PlagScan starten",
                                  command=lambda: PlagiatScanner.start_plagscan(self))
-        start_button.grid(row=2, column=1, pady=10, sticky="ew")
+        start_button.grid(row=3, column=1, pady=10, sticky="ew")
         start_button.config(width=20, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
         start_button.bind("<Enter>", on_enter)
         start_button.bind("<Leave>", on_leave)
 
         self.info_textline = tk.Label(self.root, text="", bg="#0a3055", fg="white", font=("Calibri", 12))
-        self.info_textline.grid(row=3, column=0, columnspan=3, sticky="ew")
+        self.info_textline.grid(row=4, column=0, columnspan=3, sticky="ew")
 
         self.progressbar = ttk.Progressbar(self.root, orient="horizontal", length=200, mode="determinate")
 
@@ -60,7 +67,7 @@ class GUI:
             self.create_open_result_button(None)
 
         self.result_from_button = tk.Button(self.root, text="🔽", command=lambda: self.open_table_gui())
-        self.result_from_button.grid(row=5, column=2, pady=10, sticky="w")
+        self.result_from_button.grid(row=6, column=2, pady=10, sticky="w")
         self.result_from_button.config(width=2, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
         self.result_from_button.bind("<Enter>", on_enter)
         self.result_from_button.bind("<Leave>", on_leave)
@@ -108,6 +115,9 @@ class GUI:
     def open_table_gui(self, filename=None):
         self.root.destroy()
         table = tableGui.TableGui(FileEditor.load_auswertung_from_file(filename))
+
+    def open_settings(self):
+        settings = settingsGui.SettingsGUI()
 
     def set_progressbar_start(self, value: int):
         self.progressbar['maximum'] = value
