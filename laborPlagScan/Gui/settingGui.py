@@ -20,26 +20,42 @@ class SettingsGUI:
         self.master.title("Einstellungen")
         self.master.geometry("600x350")
 
-        self.label = ttk.Label(self.master, font=("Calibri", 12), text="""   - Variablennamen werden allgemein mit x bezeichnet.
+        self.master.grid_columnconfigure(0, weight=1)
+        self.master.grid_rowconfigure(0, weight=1)
+
+        # Main Frame
+        main_frame = ttk.Frame(self.master)
+        main_frame.grid(row=0, column=0, sticky="nsew")
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.rowconfigure(0, weight=1)
+
+        # Canvas
+        self.canvas = tk.Canvas(main_frame)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.canvas.columnconfigure(0, weight=1)
+        self.canvas.rowconfigure(0, weight=1)
+        self.canvas.configure(borderwidth=0)
+        self.canvas.bind("<Configure>", self.adjust_wraplenght)
+
+        self.filter_frame = ttk.Frame(self.canvas)
+        self.filter_frame.grid(row=0, column=0, sticky="nsew")
+        self.filter_frame.columnconfigure(0, weight=1)
+        self.filter_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        self.canvas.create_window((0, 0), window=self.filter_frame, anchor="nw")
+
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(self.master, orient="vertical", command=self.canvas.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        self.filter_row = 0
+        self.label = ttk.Label(self.filter_frame, font=("Calibri", 12), text="""   - Variablennamen werden allgemein mit x bezeichnet.
     - Spezifische Codezeilen wie this.x = x;.
     - Reguläre Ausdrücke (beginnend mit 'Regex:'), die Muster innerhalb des Codes erkennen.
     - Dateinamen, die direkt angegeben werden können, wie vorlage.java, um bestimmte Dateien von der Überprüfung auszuschließen.""")
-        self.label.pack(pady=10, fill=tk.X)
-
-        # Container für Canvas und Scrollbar
-        container = ttk.Frame(self.master)
-        container.pack(fill=tk.BOTH, expand=True, side=tk.TOP)
-
-        self.canvas = tk.Canvas(container)
-        self.scrollbar = ttk.Scrollbar(container, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.canvas)
-
-        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="center")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-
-        self.scrollbar.pack(side="right", fill="y")
-        self.canvas.pack(side="left", fill=tk.BOTH, expand=True)
+        self.label.grid(row=self.filter_row, column=0, sticky="ew")
 
         # Binden des Scroll-Events an das Canvas-Widget für das Mausrad
         self.master.bind_all('<MouseWheel>', self.on_mousewheel)  # für Windows
@@ -49,26 +65,31 @@ class SettingsGUI:
         self.filters = read_filters_from_file()
         self.entries = []
 
-        for filter in self.filters:
-            self.add_filter_row(filter)
+        self.filter_row += 1
+        for plag_filter in self.filters:
+            self.add_filter_row(plag_filter)
+
+        self.add_button = ttk.Button(self.filter_frame, text="Filter hinzufügen", command=self.add_filter_row)
+        self.add_button.grid(row=100, column=0, padx=10)
 
         # Frame für die Buttons unter dem Canvas
         button_frame = ttk.Frame(self.master)
-        button_frame.pack(fill=tk.X, side=tk.BOTTOM, pady=10)
+        button_frame.grid(row=1, column=0, sticky="ew")
 
-        self.add_button = ttk.Button(button_frame, text="Filter hinzufügen", command=self.add_filter_row)
-        self.add_button.pack(side=tk.LEFT, padx=10)
+        self.reset_button = ttk.Button(button_frame, text="Filter zurücksetzen", command=self.reset)
+        self.reset_button.grid(row=0, column=0, padx=10, sticky="e")
 
         self.save_button = ttk.Button(button_frame, text="Speichern", command=self.save)
-        self.save_button.pack(side=tk.RIGHT, padx=10)
+        self.save_button.grid(row=0, column=2, padx=10, sticky="w")
 
-    def add_filter_row(self, filter=""):
-        row = ttk.Frame(self.scrollable_frame)
-        row.pack(fill=tk.X, pady=5)
+    def add_filter_row(self, plag_filter=""):
+        row = ttk.Frame(self.filter_frame)
+        row.grid(row=self.filter_row, column=0, sticky="ew")
+        self.filter_row += 1
 
         entry = ttk.Entry(row)
         entry.pack(side=tk.LEFT, expand=True, fill=tk.X, padx=(0, 5))
-        entry.insert(0, filter)
+        entry.insert(0, plag_filter)
 
         delete_button = ttk.Button(row, text="Löschen", command=lambda: self.delete_row(row, entry))
         delete_button.pack(side=tk.RIGHT)
@@ -89,10 +110,10 @@ class SettingsGUI:
     def reset(self):
         filters = ['', 'this.x = x;', 'Regex:(protected|private|public)\s(static\s)?(String|double|float|boolean|int)\s(x;)', 'Regex:(public)\s(String|double|float|boolean|int)\s(x\(\) {)', 'Regex:(return)\s(x;)', 'Regex:(public\svoid\sx\()(String|double|float|boolean|int)\s(x\) {)', 'Regex:(this\.x\s=\sx;)', 'Regex:(\})']
         save_filters_to_file(filters)
-        SettingsGUI()
+        self.master.destroy()
 
     def adjust_wraplenght(self, event):
-        self.label.config(wraplength=event.winfo_width() - 20)
+        self.label.config(wraplength=self.master.winfo_width() - 20)
 
     def on_mousewheel(self, event):
         if event.num == 4 or event.delta > 0:  # Scrollen nach oben
