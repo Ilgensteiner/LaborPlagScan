@@ -56,6 +56,8 @@ class SettingsGUI:
     - Reguläre Ausdrücke (beginnend mit 'Regex:'), die Muster innerhalb des Codes erkennen.
     - Dateinamen, die direkt angegeben werden können, wie vorlage.java, um bestimmte Dateien von der Überprüfung auszuschließen.""")
         self.label.grid(row=self.filter_row, column=0, sticky="ew")
+        self.filter_row += 1
+        ttk.Separator(self.filter_frame, orient="horizontal").grid(row=self.filter_row, column=0, sticky="ew")
 
         # Binden des Scroll-Events an das Canvas-Widget für das Mausrad
         self.master.bind_all('<MouseWheel>', self.on_mousewheel)  # für Windows
@@ -72,7 +74,8 @@ class SettingsGUI:
                 for key, value in plag_filter.items():
                     self.add_filter_settings(key, value)
             elif plag_filter == '':
-                continue
+                ttk.Separator(self.filter_frame, orient="horizontal").grid(row=self.filter_row, column=0, sticky="ew")
+                self.filter_row += 1
             else:
                 self.add_filter_row(plag_filter)
 
@@ -104,7 +107,6 @@ class SettingsGUI:
         self.entries.append((row, entry))
 
     def add_filter_settings(self, name, value):
-        print(name, value)
         row = ttk.Frame(self.filter_frame)
         row.grid(row=self.filter_row, column=0, sticky="ew")
         self.filter_row += 1
@@ -129,7 +131,6 @@ class SettingsGUI:
 
     def save(self):
         settings_dict = {"ignorePrintStatemants": self.settingsVars["ignorePrintStatemants"].getvar("var"), "PlagiatAlert": self.settingsVars["PlagiatAlert"].get()}
-        print(settings_dict)
         updated_filters = [entry.get() for _, entry in self.entries]
         updated_filters.insert(0, settings_dict)
         save_filters_to_file(updated_filters)
