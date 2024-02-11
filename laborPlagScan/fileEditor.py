@@ -10,7 +10,7 @@ from reportlab.lib import colors
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 
-import laborPlagScan.mainGUI as mainGUI
+import laborPlagScan.Gui.mainGUI as mainGUI
 
 
 def extract_zip(zip_path):

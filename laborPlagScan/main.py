@@ -1,5 +1,5 @@
 import tkinter as tk
-from laborPlagScan.mainGUI import GUI
+from laborPlagScan.Gui.mainGUI import GUI
 
 
 def run() -> None:

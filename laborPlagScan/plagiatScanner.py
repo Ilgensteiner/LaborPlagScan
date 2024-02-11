@@ -6,7 +6,7 @@ import math
 import re
 
 import laborPlagScan.fileEditor as FileEditor
-import laborPlagScan.mainGUI as mainGUI
+import laborPlagScan.Gui.mainGUI as mainGUI
 import laborPlagScan.basicConfig as basicConfig
 
 java_syntax_words = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
