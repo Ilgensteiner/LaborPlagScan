@@ -3,3 +3,4 @@
 .venv
 /.venv
 /logs/
+/tests/resources/Test_Labor/

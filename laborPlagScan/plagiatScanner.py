@@ -67,9 +67,19 @@ def file_to_list(filepath: str) -> list:
             return []
 
     new_lines = []
-    for i, line in enumerate(lines):
+    i = 0
+    for line in lines:
+        if line.count(";") > 1:
+            lineSplits = line.count(";") - 1
+            multi_line = line.replace(";", ";SplitHERE", lineSplits).split("SplitHERE")
+            for j in multi_line:
+                line_list = [i, j]
+                new_lines.append(line_list)
+                i += 1
+            continue
         line_list = [i, line]
         new_lines.append(line_list)
+        i += 1
 
     return new_lines
 
