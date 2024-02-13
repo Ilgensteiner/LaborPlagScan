@@ -1,5 +1,6 @@
 import json
 import os
+import pickle
 import tkinter
 import zipfile
 import tkinter as tk
@@ -11,6 +12,7 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 
 import laborPlagScan.Gui.mainGUI as mainGUI
+from laborPlagScan.DataModels.student import Student
 
 
 def extract_zip(zip_path):
@@ -73,38 +75,35 @@ def get_last_modified_file():
     return last_modified_file
 
 
-def save_auswertung_to_file(d: dict, path="laborPlagScan/result/", filename="last_result"):
-    """Saves the auswertung dictionary to a json-file"""
+def save_auswertung_to_file(obj, path="laborPlagScan/result/", filename="last_result"):
+    """Saves the auswertung Objects to a pickle-file"""
     if path is None:
         root = tk.Tk()
         root.withdraw()
         path = filedialog.askdirectory()
         root.destroy()
 
-    filename = filename.split('.')[0] + '.json'
+    filename = filename.split('.')[0] + '.pkl'
     path = os.path.join(path, filename)
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w') as f:
-        json.dump(d, f)
+    with open(filename, 'wb') as outp:  # Schreibt die Datei im Binärmodus
+        pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
 
-def load_auswertung_from_file(filename=None) -> dict:
-    """Loads the 'auswertung' dictionary from a json-file"""
+def load_auswertung_from_file(filename=None) -> [Student]:
+    """Loads the 'auswertung' Objects from a pickle-file"""
     if filename is None:
         filepath = tkinter.filedialog.askopenfilename(initialdir="/", title="Select file")
     else:
         # Erstelle den Pfad zur Datei im Ordner "result"
-        filepath = f"laborPlagScan/result/{filename}.json"
+        filepath = f"laborPlagScan/result/{filename}.pkl"
 
-    # Öffne die Datei und lese das dict aus
-    with open(filepath, "r") as file:
-        data = json.load(file)
-
-    # Gib das dict zurück
-    return data
+    # Öffne die Datei und lese die Objekte aus
+    with open(filepath, 'rb') as inp:  # Liest die Datei im Binärmodus
+        return pickle.load(inp)
 
 
-#TODO: Remove Line-Part and check usage
+# TODO: Remove Line-Part and check usage
 def read_file(filepath, lines=None):
     """
     :param filepath: Pfad zur Datei
