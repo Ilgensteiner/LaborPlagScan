@@ -51,10 +51,9 @@ class SettingsGUI:
         self.canvas.configure(yscrollcommand=scrollbar.set)
 
         self.filter_row = 0
-        self.label = ttk.Label(self.filter_frame, font=("Calibri", 12), text="""   - Variablennamen werden allgemein mit x bezeichnet.
-    - Spezifische Codezeilen wie this.x = x;.
+        self.label = ttk.Label(self.filter_frame, font=("Calibri", 12), text="""   - Variablennamen werden allgemein mit x bezeichnen. Bsp: (this.x = x;.)
     - Reguläre Ausdrücke (beginnend mit 'Regex:'), die Muster innerhalb des Codes erkennen.
-    - Dateinamen, die direkt angegeben werden können, wie vorlage.java, um bestimmte Dateien von der Überprüfung auszuschließen.""")
+    - Dateinamen (beginnend mit 'File:') um bestimmte Dateien von der Überprüfung auszuschließen.""")
         self.label.grid(row=self.filter_row, column=0, sticky="ew")
         self.filter_row += 1
         ttk.Separator(self.filter_frame, orient="horizontal").grid(row=self.filter_row, column=0, sticky="ew")

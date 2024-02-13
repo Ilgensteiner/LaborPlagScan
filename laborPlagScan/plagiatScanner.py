@@ -88,44 +88,42 @@ def replace_words_in_file(file_list: list, word_list: set, java_operator_set: se
     """Replaces all variables in a file with a placeholder and deletes all comments, and blank lines"""
     new_lines = []
     commentblock = False
-
     for line in file_list:
         new_line = line[:]
         if '/**' in new_line[1]:
             commentblock = True
-            new_line[1] = ''
-            new_lines.append(new_line)
             continue
         elif '*/' in new_line[1]:
             commentblock = False
-            new_line[1] = ''
-            new_lines.append(new_line)
             continue
         elif commentblock:
-            new_line[1] = ''
-            new_lines.append(new_line)
             continue
         else:
             if '//' in new_line[1]:
                 new_line[1] = new_line[1].split('//')[0] + '\n'
 
-            # Leere print ausdrücke entfernen
-            new_line[1] = re.sub(r'System\.out\.println\(\s*(?:\\n|\\t)*\s*\);', '', new_line[1])
+        # Entfernen von "{" und "}" in der Zeile da diese an verschiedenen Stellen gesetzt sein können
+        new_line[1] = new_line[1].replace('{', '').replace('}', '')
 
-            new_line[1] = new_line[1].replace('{', '').replace('}', '')
-            words = re.findall(r'\b\w+\b', new_line[1])
-            for word in words:
-                if word not in word_list or word not in java_operator_set:
-                    new_line[1] = re.sub(r'\b' + re.escape(word) + r'\b', 'x', new_line[1])
+        # Erntferenen von Leeren Zeilen
+        if new_line[1].strip() == "":
+            continue
 
-            # leerzeichen um Java zeichen und Operatoren entfernen
-            pattern = r'\s*(' + '|'.join([re.escape(ch) for ch in sorted(java_syntax_chars, key=len, reverse=True)]) + r')\s*'
-            new_line[1] = re.sub(pattern, r'\1', new_line[1])
+        if re.search(r'System\.out\.println\("?\s*(?:\\n|\\t)*\s*"?\);', new_line[1]):
+            continue
 
-            # alles innerhalb von Anführungszeichen ersetzen durch ein "x"
-            new_line[1] = re.sub(r'(["\']).*(["\'])', 'x', new_line[1])
+        words = re.findall(r'\b\w+\b', new_line[1])
+        for word in words:
+            if word not in word_list and word not in java_operator_set:
+                new_line[1] = re.sub(r'\b' + re.escape(word) + r'\b', 'x', new_line[1])
 
-            new_lines.append(new_line)
+        # leerzeichen um Java zeichen und Operatoren entfernen
+        pattern = r'\s*(' + '|'.join([re.escape(ch) for ch in sorted(java_syntax_chars, key=len, reverse=True)]) + r')\s*'
+        new_line[1] = re.sub(pattern, r'\1', new_line[1])
+
+        # alles innerhalb von Anführungszeichen ersetzen durch ein "x"
+        new_line[1] = re.sub(r'(["\']).*(["\'])', 'x', new_line[1])
+        new_lines.append(new_line)
 
     return new_lines
 
@@ -134,6 +132,24 @@ def find_java_files(folder_path):
     """Returns a dictionary with all java files in the given folder and its subfolders,
     while ignoring folders in the ignore_folders list and ignoring case."""
     ignore_folders = ["__MACOSX"]
+    ignore_files = []
+
+    # sammle Files die ignoriert werden sollen
+    with open('./filter.txt', 'r') as f:
+        filter_list = ast.literal_eval(f.read())
+
+    for filter_str in filter_list:
+        if isinstance(filter_str, dict):
+            settings_dict = filter_str
+            continue
+
+        readed_filter = filter_str.split(":")
+        if readed_filter[0] == "Regex":
+            continue
+        elif readed_filter[0] == "File":
+            ignore_files.append(readed_filter[1].strip().lower())
+        else:
+            continue
 
     # Konvertiere die Liste der zu ignorierenden Ordner in Kleinbuchstaben
     ignore_folders = [folder.lower() for folder in ignore_folders]
@@ -141,6 +157,8 @@ def find_java_files(folder_path):
     java_files = {}
     for root, dirs, files in os.walk(folder_path):
         for file in files:
+            if file.lower() in ignore_files:
+                continue
             if file.lower().endswith(".java"):
                 if not any(folder in root.lower().split(os.sep) for folder in ignore_folders):
                     java_files[file] = os.path.join(root, file)
@@ -166,13 +184,21 @@ def filter_lines(file_as_list: list) -> list:
     regexpattern_list = []
     regexpattern_list_pre = []
     filter_strings = []
+    files_list = []
+    settings_dict = {}
     with open('./filter.txt', 'r') as f:
         filter_list = ast.literal_eval(f.read())
 
     for filter_str in filter_list:
+        if isinstance(filter_str, dict):
+            settings_dict = filter_str
+            continue
+
         readed_filter = filter_str.split(":")
         if readed_filter[0] == "Regex":
             regexpattern_list_pre.append(readed_filter[1])
+        elif readed_filter[0] == "File":
+            continue
         else:
             filter_strings.append(filter_str)
 
@@ -183,6 +209,9 @@ def filter_lines(file_as_list: list) -> list:
     for line in file_as_list:
         if not any(exclude_string in line for exclude_string in filter_strings) and not any(
                 regex_pattern.search(line[1]) for regex_pattern in regexpattern_list):
+            if settings_dict["ignorePrintStatemants"] == 1:
+                if "System.out.print" in line[1]:
+                    continue
             filtered_lines.append(line)
 
     return filtered_lines
@@ -298,6 +327,7 @@ def plagscan(students_folder: str, gui: mainGUI):
     plagiat_dict = {}
     gui.set_progressbar_start((math.pow(len(student_folders_list), 2) / 2))
     gui.info_textline.config(text="Files werden verglichen...")
+    #TODO: "Plagiant ab" aus filter.txt auslesen
     for i, student1 in enumerate(student_dict):
         for student2 in list(student_dict)[i + 1:]:
             for file1 in student_dict[student1]:
