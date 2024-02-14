@@ -1,4 +1,3 @@
-import ast
 import re
 
 from laborPlagScan import basicConfig
@@ -73,6 +72,7 @@ class File:
         self.pfad = pfad
         self.fileInLines = []
         self.linesAufbereitet = []
+        self.plagatierteZeilen = []
 
         self.file_to_list()
         self.lineCount = len(self.fileInLines)
@@ -118,3 +118,9 @@ class File:
                         continue
                 self.linesAufbereitet.append(line)
 
+    def getFileString(self):
+        """Returns the file as a string"""
+        fileString = ""
+        for line in self.fileInLines:
+            fileString += line[1]
+        return fileString

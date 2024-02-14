@@ -1,13 +1,10 @@
-import ast
 import os
 import threading
 from tkinter import messagebox
 import math
-import re
 
 import laborPlagScan.fileEditor as FileEditor
 import laborPlagScan.Gui.mainGUI as mainGUI
-import laborPlagScan.basicConfig as basicConfig
 from laborPlagScan.DataModels.plagiat import Plagiat
 from laborPlagScan.DataModels.plagiatPaare import PlagiatPaare
 from laborPlagScan.DataModels.student import Student
@@ -41,7 +38,6 @@ def start_plagscan(selected_path, Gui: mainGUI):
         messagebox.showerror("Fehler", "Keine ZIP-Datei ausgewählt!")
         return
     elif selected_path.endswith(".zip"):
-        # TODO: mainGUI.GUI.set_info_text( --> austauschen durch --> mainGui.GUI.set_info_text(
         mainGUI.GUI.set_info_text("ZIP-Datei wird entpackt...")
         selected_path = FileEditor.extract_zip(selected_path)
         mainGUI.GUI.set_info_text("ZIP-Datei entpackt")
@@ -155,7 +151,9 @@ def plagscan(students_folder: str):
                     else:
                         newPlagiat = Plagiat(file1, file2, plagiat)
                         PlagiatPaar.addPlagiat(newPlagiat)
-            if PlagiatPaar.getPlagiatAnteil() > Filter.getPlagiatAlert():
+            PlagiatPaar.countPlagiatZeilenGes()
+            PlagiatPaar.calcPlagiatAnteil()
+            if PlagiatPaar.plagiatAnteil > Filter.getPlagiatAlert():
                 plagiat_list.append(PlagiatPaar)
             mainGUI.GUI.update_progressbar_value(1)
 
@@ -166,7 +164,7 @@ def plagscan(students_folder: str):
     threading.Thread(target=mainGUI.display_msgbox, args=("PlagScan", stats_text)).start()
 
     # 5. Ergebnis Sturktur erstellen und sortieren
-    plagiat_list_sorted = sorted(plagiat_list, key=lambda paar: paar.getPlagiatAnteil(), reverse=True)
+    plagiat_list_sorted = sorted(plagiat_list, key=lambda paar: paar.plagiatAnteil, reverse=True)
 
     # 6. Ergebnis speichern
     FileEditor.save_auswertung_to_file(plagiat_list_sorted)

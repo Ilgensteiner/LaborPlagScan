@@ -8,16 +8,35 @@ class PlagiatPaare:
         self.student2 = student2
         self.plagiate = []
         self.plagiatZeilenGes = 0
+        self.plagiatAnteil = 0
+        self.plagiatStatus = ""
 
     def addPlagiat(self, plagiat: Plagiat):
         self.plagiate.append(plagiat)
 
     def countPlagiatZeilenGes(self):
+        self.plagiatZeilenGes = 0
         for plagiat in self.plagiate:
             self.plagiatZeilenGes += plagiat.plagiatZeilenAnzahl
 
-    def getPlagiatAnteil(self):
-        self.countPlagiatZeilenGes()
-        if self.plagiatZeilenGes == 0:
-            return 0
-        return (100 / self.student1.zeilenGes) * self.plagiatZeilenGes
+    def calcPlagiatAnteil(self):
+        if self.plagiatZeilenGes == 0 or self.student1.zeilenGes == 0:
+            self.plagiatAnteil = 0
+        else:
+            self.plagiatAnteil = (100 / self.student1.zeilenGes) * self.plagiatZeilenGes
+
+    def markPlagiatCodeinFiles(self):
+        for stud1file in self.student1.files:
+            stud1file.plagatierteZeilenMarktiert = []
+            for plagiat in self.plagiate:
+                if plagiat.file1 == stud1file:
+                    for abschnitt in plagiat.vonBis:
+                        stud1file.plagatierteZeilenMarktiert.append([abschnitt[0], abschnitt[1]])
+
+        for stud2file in self.student2.files:
+            stud2file.plagatierteZeilenMarktiert = []
+            for plagiat in self.plagiate:
+                if plagiat.file2 == stud2file:
+                    for abschnitt in plagiat.vonBis:
+                        stud2file.plagatierteZeilenMarktiert.append([abschnitt[2], abschnitt[3]])
+

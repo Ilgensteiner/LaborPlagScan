@@ -7,6 +7,7 @@ import laborPlagScan.fileEditor as FileEditor
 import laborPlagScan.plagiatScanner as PlagiatScanner
 import laborPlagScan.Gui.tableGui as tableGui
 import laborPlagScan.Gui.settingGui as settingsGui
+from laborPlagScan.Gui.auswertung import AuswertungGui
 
 
 def on_enter(e):
@@ -137,7 +138,7 @@ class GUI:
         if filename is None:
             filename = FileEditor.get_last_modified_file()
             if filename is None:
-                self.result_button = tk.Button(GUI.root, text=f"Open Save", command=lambda: self.open_table_gui(filename))
+                self.result_button = tk.Button(GUI.root, text=f"Open Save", command=lambda: self.open_table_gui())
             else:
                 self.result_button = tk.Button(GUI.root, text=f"Open {filename}", command=lambda: self.open_table_gui(filename))
         else:
@@ -150,7 +151,7 @@ class GUI:
 
     def open_table_gui(self, filename=None):
         GUI.root.destroy()
-        table = tableGui.TableGui(FileEditor.load_auswertung_from_file(filename))
+        table = AuswertungGui(FileEditor.load_auswertung_from_file(filename))
 
     def open_settings(self):
         settings = settingsGui.SettingsGUI()
