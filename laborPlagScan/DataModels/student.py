@@ -1,7 +1,8 @@
 import ast
 import os
 
-import file
+from laborPlagScan.DataModels.file import File
+from laborPlagScan.filter import Filter
 
 
 class Student:
@@ -18,25 +19,7 @@ class Student:
         """Returns a list with all java files in the given folder and its subfolders,
         while ignoring folders in the ignore_folders list and ignoring case."""
         ignore_folders = ["__MACOSX"]
-        ignore_files = []
-
-        # TODO: Austauschen durch Filter-Klasse
-        # sammle Files die ignoriert werden sollen
-        with open('./filter.txt', 'r') as f:
-            filter_list = ast.literal_eval(f.read())
-
-        for filter_str in filter_list:
-            if isinstance(filter_str, dict):
-                settings_dict = filter_str
-                continue
-
-            readed_filter = filter_str.split(":")
-            if readed_filter[0] == "Regex":
-                continue
-            elif readed_filter[0] == "File":
-                ignore_files.append(readed_filter[1].strip().lower())
-            else:
-                continue
+        ignore_files = Filter.getIgnoreFiles()
 
         # Konvertiere die Liste der zu ignorierenden Ordner in Kleinbuchstaben
         ignore_folders = [folder.lower() for folder in ignore_folders]

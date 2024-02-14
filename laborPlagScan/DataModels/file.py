@@ -2,6 +2,7 @@ import ast
 import re
 
 from laborPlagScan import basicConfig
+from laborPlagScan.filter import Filter
 
 java_syntax_words = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue",
                      "default", "double", "do", "else", "enum", "extends", "final", "finally", "float", "for", "goto",
@@ -76,6 +77,7 @@ class File:
         self.file_to_list()
         self.lineCount = len(self.fileInLines)
         file_lines_prepared = replace_words_in_file(self.fileInLines, java_syntax_words, java_syntax_chars)
+        self.filter_lines(file_lines_prepared)
 
     def file_to_list(self):
         """Converts a file to a list of lines, each line is a list with the line number and the line itself"""
@@ -103,36 +105,15 @@ class File:
 
     def filter_lines(self, file_lines) -> list:
         """Filters all lines from a file that contain a string from the filter.txt file"""
-        regexpattern_list = []
-        regexpattern_list_pre = []
-        filter_strings = []
-        settings_dict = {}
-        # TODO: Austauschen durch Filter-Klasse
-        with open('./filter.txt', 'r') as f:
-            filter_list = ast.literal_eval(f.read())
-
-        for filter_str in filter_list:
-            if isinstance(filter_str, dict):
-                settings_dict = filter_str
-                continue
-
-            readed_filter = filter_str.split(":")
-            if readed_filter[0] == "Regex":
-                regexpattern_list_pre.append(readed_filter[1])
-            elif readed_filter[0] == "File":
-                continue
-            else:
-                filter_strings.append(filter_str)
-
-        filtered_lines = []
-        for regex_code in regexpattern_list_pre:
-            regexpattern_list.append(re.compile(regex_code))
+        regexpattern_list = Filter.getRegexpatternList()
+        filter_strings = Filter.getFilterStrings()
+        ignorePrintStatemants = Filter.getIgnorePrintStatemants()
 
         for line in file_lines:
             line[1] = line[1].strip()
             if not any(exclude_string in line for exclude_string in filter_strings) and not any(
                     regex_pattern.search(line[1]) for regex_pattern in regexpattern_list):
-                if settings_dict["ignorePrintStatemants"] == 1:
+                if ignorePrintStatemants == 1:
                     if "System.out.print" in line[1]:
                         continue
                 self.linesAufbereitet.append(line)
