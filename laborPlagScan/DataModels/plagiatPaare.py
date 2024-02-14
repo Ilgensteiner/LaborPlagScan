@@ -20,4 +20,4 @@ class PlagiatPaare:
         self.countPlagiatZeilenGes()
         if self.plagiatZeilenGes == 0:
             return 0
-        return (self.student1.zeilenGes / self.plagiatZeilenGes) * 100
+        return (100 / self.student1.zeilenGes) * self.plagiatZeilenGes
