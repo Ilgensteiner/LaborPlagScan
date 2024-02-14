@@ -24,18 +24,18 @@ def extract_zip(zip_path):
     return extract_path
 
 
-def unpackZipFiles(folder_path: str, gui: mainGUI):
+def unpackZipFiles(folder_path: str):
     """Entpackt alle ZIP-Dateien im Ordner und gibt den Pfad zum Ordner zurück, in dem die Dateien entpackt wurden"""
     # 1. Liste aller Dateien im Ordner
     files = os.listdir(folder_path)
     zipfile_found = False
 
     # 1.1. Einstellen der Progressbar
-    gui.set_progressbar_start(len(files))
+    mainGUI.GUI.set_progressbar_start(len(files))
 
     # 2. Schleife für alle Dateien im Ordner
     for file in files:
-        gui.update_progressbar_value(1)
+        mainGUI.GUI.update_progressbar_value(1)
         # 3. Prüfen, ob Datei eine ZIP-Datei ist
         if not file.endswith('.zip'):
             continue
@@ -56,7 +56,7 @@ def unpackZipFiles(folder_path: str, gui: mainGUI):
             subfolder_path = os.path.join(folder_path, subfolder)
             if not os.path.isdir(subfolder_path):
                 continue
-            extract_path = unpackZipFiles(subfolder_path, gui)
+            extract_path = unpackZipFiles(subfolder_path)
             return extract_path
 
     return os.path.dirname(extract_path)
@@ -86,7 +86,7 @@ def save_auswertung_to_file(obj, path="laborPlagScan/result/", filename="last_re
     filename = filename.split('.')[0] + '.pkl'
     path = os.path.join(path, filename)
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(filename, 'wb') as outp:  # Schreibt die Datei im Binärmodus
+    with open(path, 'wb') as outp:  # Schreibt die Datei im Binärmodus
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
 
