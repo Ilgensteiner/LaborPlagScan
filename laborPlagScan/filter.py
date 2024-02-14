@@ -1,5 +1,6 @@
 # Klasse um Filter.txt auszulesen und zu verarbeiten
 import ast
+import re
 
 
 class Filter:
@@ -11,6 +12,8 @@ class Filter:
 
     @staticmethod
     def readFilter():
+        regexpattern_list_pre = []
+
         with open('./filter.txt', 'r') as f:
             filter_list = ast.literal_eval(f.read())
 
@@ -18,16 +21,19 @@ class Filter:
             if isinstance(filter_str, dict):
                 settings_dict = filter_str
                 Filter.ignorePrintStatemants = settings_dict["ignorePrintStatemants"]
-                Filter.PlagiatAlert = settings_dict["PlagiatAlert"]
+                Filter.PlagiatAlert = int(settings_dict["PlagiatAlert"])
                 continue
 
             readed_filter = filter_str.split(":")
             if readed_filter[0] == "Regex":
-                Filter.regexpattern_list.append(readed_filter[1])
+                regexpattern_list_pre.append(readed_filter[1])
             elif readed_filter[0] == "File":
                 Filter.ignore_files.append(readed_filter[1].strip().lower())
             else:
                 Filter.filter_strings.append(filter_str)
+
+        for regex_code in regexpattern_list_pre:
+            Filter.regexpattern_list.append(re.compile(regex_code))
 
     @staticmethod
     def getIgnorePrintStatemants():
