@@ -9,12 +9,15 @@ class PlagiatPaare:
         self.plagiate = []
         self.plagiatZeilenGes = 0
 
-        self.countPlagiatZeilenGes()
-        self.plagiatAnteil = (self.student1.zeilenGes / self.plagiatZeilenGes) * 100
-
     def addPlagiat(self, plagiat: Plagiat):
         self.plagiate.append(plagiat)
 
     def countPlagiatZeilenGes(self):
         for plagiat in self.plagiate:
             self.plagiatZeilenGes += plagiat.plagiatZeilenAnzahl
+
+    def getPlagiatAnteil(self):
+        self.countPlagiatZeilenGes()
+        if self.plagiatZeilenGes == 0:
+            return 0
+        return (self.student1.zeilenGes / self.plagiatZeilenGes) * 100
