@@ -40,8 +40,6 @@ class AuswertungGui:
         auswertung_gui.columnconfigure(0, weight=1)
         auswertung_gui.rowconfigure(0, weight=1)
 
-        self.create_button_panel_auswertung()
-
         # Canvas erstellen
         self.canvas = tk.Canvas(auswertung_gui)
         self.canvas.grid(row=0, column=0, sticky="nsew")
@@ -105,10 +103,6 @@ class AuswertungGui:
     def update_progressbar(self):
         self.progressbar['value'] += 1
         self.root.update_idletasks()
-
-    # TODO: wofür ist die?
-    def create_button_panel_auswertung(self):
-        pass
 
     def plagiatAuflistung(self):
         for plagiatPaar in self.plagiatPaareList:
