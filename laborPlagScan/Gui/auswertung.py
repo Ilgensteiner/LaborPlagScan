@@ -74,7 +74,10 @@ class AuswertungGui:
         # Canvas-Scrollbars-Konfiguration
         self.canvas.configure(yscrollcommand=yscrollbar.set, xscrollcommand=xscrollbar.set)
 
-        # TODO: Add Progressbar wo Button Pannel ist
+        self.progressbar = ttk.Progressbar(self.root, orient="horizontal", length=200, mode="determinate")
+        self.progressbar.grid(row=1, column=0, sticky="ew", ipadx=5, ipady=2)
+        self.progressbar['maximum'] = len(self.plagiatPaareList)
+        self.progressbar['value'] = 0
 
         self.rowInDataframe = 0
         self.plagiatAuflistung()
@@ -99,6 +102,11 @@ class AuswertungGui:
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         self.placeholder_label.configure(width=self.root.winfo_width() - 25)
 
+    def update_progressbar(self):
+        self.progressbar['value'] += 1
+        self.root.update_idletasks()
+
+    # TODO: wofür ist die?
     def create_button_panel_auswertung(self):
         pass
 
@@ -148,6 +156,7 @@ class AuswertungGui:
 
             button_frame.columnconfigure(0, weight=1)
 
+            self.update_progressbar()
             self.root.update()
             self.update_inner_frame()
 
