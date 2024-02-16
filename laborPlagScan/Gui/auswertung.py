@@ -186,7 +186,6 @@ class AuswertungGui:
     def on_export_savefile_button(self):
         FileEditor.save_auswertung_to_file(self.plagiatPaareList, None, "Auswertung")
 
-    # FIXME: IndexError
     def on_export_table_button(self, save_as="pdf"):
         data = []
         row = 0
@@ -209,8 +208,7 @@ class AuswertungGui:
             if data[0] == [""]:
                 data.pop(0)
             export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file",
-                                                       initialfile="Plagiat " + "-".join(data[0]).strip(
-                                                           '\t\n ') + ".pdf",
+                                                       initialfile="Plagiat Auswertung" + ".pdf",
                                                        filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
             FileEditor.table_to_pdf_export(export_path, data)
         else:
