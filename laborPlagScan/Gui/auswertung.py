@@ -86,11 +86,13 @@ class AuswertungGui:
         button_panel.columnconfigure(1, weight=1)
 
         # Buttons erstellen
+        btn_save = ttk.Button(button_panel, text="Speichern", command=self.on_speichern_button_click)
         btn_exsave = ttk.Button(button_panel, text="Export Savefile", command=self.on_export_savefile_button)
         btn_expdf = ttk.Button(button_panel, text="Export as PDF",
                                command=lambda: self.on_export_table_button(save_as="pdf"))
 
         # Buttons positionieren
+        btn_save.grid(row=0, column=0, sticky="e")
         btn_exsave.grid(row=0, column=1, sticky="e")
         btn_expdf.grid(row=0, column=2, sticky="e")
 

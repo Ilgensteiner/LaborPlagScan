@@ -97,13 +97,6 @@ def compare_files(file1_lines: list, file2_lines: list) -> list:
                     plag_list.append([start_datei1, file1_lines[i][0], start_datei2, file2_lines[j][0]])
                 count = 0
         i += 1
-
-    # result_code_list = []
-    # for plagiat in plag_list:
-    #     result_code_list.append(
-    #         [get_plagcode_from_filelist(file1_lines, plagiat), plagiat[0], plagiat[1], plagiat[2], plagiat[3]])
-    #
-    # return result_code_list
     return plag_list
 
 

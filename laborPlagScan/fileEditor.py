@@ -94,6 +94,8 @@ def load_auswertung_from_file(filename=None) -> [Student]:
     """Loads the 'auswertung' Objects from a pickle-file"""
     if filename is None:
         filepath = tkinter.filedialog.askopenfilename(initialdir="/", title="Select file")
+        FileNotFoundError("No file selected")
+
     else:
         # Erstelle den Pfad zur Datei im Ordner "result"
         filepath = f"laborPlagScan/result/{filename}.pkl"

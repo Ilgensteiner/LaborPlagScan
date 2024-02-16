@@ -3,8 +3,20 @@ import ast
 import re
 
 
+def read_filters_from_file():
+    with open('./filter.txt', 'r') as f:
+        filter_list = ast.literal_eval(f.read())
+    return filter_list
+
+
+def save_filters_to_file(filters):
+    with open('./filter.txt', 'w') as f:
+        f.write(repr(filters))
+
+
 class Filter:
     ignorePrintStatemants = False
+    ignoreGetterSetter = False
     PlagiatAlert = 0
     ignore_files = []
     filter_strings = []
@@ -14,13 +26,13 @@ class Filter:
     def readFilter():
         regexpattern_list_pre = []
 
-        with open('./filter.txt', 'r') as f:
-            filter_list = ast.literal_eval(f.read())
+        filter_list = read_filters_from_file()
 
         for filter_str in filter_list:
             if isinstance(filter_str, dict):
                 settings_dict = filter_str
                 Filter.ignorePrintStatemants = settings_dict["ignorePrintStatemants"]
+                Filter.ignoreGetterSetter = settings_dict["ignoreGetterSetter"]
                 Filter.PlagiatAlert = int(settings_dict["PlagiatAlert"])
                 continue
 
@@ -34,6 +46,11 @@ class Filter:
 
         for regex_code in regexpattern_list_pre:
             Filter.regexpattern_list.append(re.compile(regex_code))
+
+        # TODO: noch testen ob regex funktioniert
+        if Filter.ignoreGetterSetter == 1:
+            Filter.regexpattern_list.append(re.compile(r'(\s*public\s*\w+\s*x\s*\(\s*\w*\s*x?\s*\)\s*\{?\s*)'))
+            Filter.regexpattern_list.append(re.compile(r'(\s*return this\.x;\s*)'))
 
     @staticmethod
     def getIgnorePrintStatemants():

@@ -5,7 +5,6 @@ import pygame
 
 import laborPlagScan.fileEditor as FileEditor
 import laborPlagScan.plagiatScanner as PlagiatScanner
-import laborPlagScan.Gui.tableGui as tableGui
 import laborPlagScan.Gui.settingGui as settingsGui
 from laborPlagScan.Gui.auswertung import AuswertungGui
 
@@ -150,8 +149,12 @@ class GUI:
         self.result_button.bind("<Leave>", on_leave)
 
     def open_table_gui(self, filename=None):
-        GUI.root.destroy()
-        table = AuswertungGui(FileEditor.load_auswertung_from_file(filename))
+        try:
+            auswertung = FileEditor.load_auswertung_from_file(filename)
+            GUI.root.destroy()
+            table = AuswertungGui(auswertung)
+        except FileNotFoundError:
+            print("File not found")
 
     def open_settings(self):
         settings = settingsGui.SettingsGUI()
