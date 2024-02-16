@@ -47,7 +47,6 @@ class Filter:
         for regex_code in regexpattern_list_pre:
             Filter.regexpattern_list.append(re.compile(regex_code))
 
-        # TODO: noch testen ob regex funktioniert
         if Filter.ignoreGetterSetter == 1:
             Filter.regexpattern_list.append(re.compile(r'(\s*public\s*\w+\s*x\s*\(\s*\w*\s*x?\s*\)\s*\{?\s*)'))
             Filter.regexpattern_list.append(re.compile(r'(\s*return this\.x;\s*)'))
