@@ -92,9 +92,9 @@ class AuswertungGui:
                                command=lambda: self.on_export_table_button(save_as="pdf"))
 
         # Buttons positionieren
-        btn_save.grid(row=0, column=0, sticky="e")
-        btn_exsave.grid(row=0, column=1, sticky="e")
-        btn_expdf.grid(row=0, column=2, sticky="e")
+        btn_save.grid(row=0, column=1, sticky="e")
+        btn_exsave.grid(row=0, column=2, sticky="e")
+        btn_expdf.grid(row=0, column=3, sticky="e")
 
         self.root.mainloop()
 
@@ -113,7 +113,7 @@ class AuswertungGui:
             button_frame = tk.Frame(self.data_frame)
             button_frame.grid(row=self.rowInDataframe, column=0, sticky="ew")
 
-            name_button_text = f"{plagiatPaar.student1.name[-15:]} - {plagiatPaar.student2.name[-15:]}\t[{plagiatPaar.plagiatStatus}]"
+            name_button_text = f"{plagiatPaar.student1.name[-15:]} - {plagiatPaar.student2.name[-15:]}\t{'[' + plagiatPaar.plagiatStatus + ']' if plagiatPaar.plagiatStatus != '' else ''}"
             name_button = tk.Button(button_frame)
             name_button.configure(text=name_button_text, bg="white", foreground="black", padx=5, pady=5, justify="left",
                                   anchor="w", font=("Calibri", 12), borderwidth=0.5, relief="solid",
