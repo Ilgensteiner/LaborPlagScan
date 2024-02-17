@@ -106,14 +106,11 @@ class VergleichGui:
         # Buttons erstellen
         btn_expExcel = ttk.Button(button_panel, text="Export as Excel",
                                command=lambda: self.on_export_table_button(save_as="xlsx"))
-        btn_expPdf = ttk.Button(button_panel, text="Export as PDF",
-                               command=lambda: self.on_export_table_button(save_as="pdf"))
 
         # Buttons positionieren
         btn_expExcel.grid(row=0, column=1, sticky="e")
-        btn_expPdf.grid(row=0, column=2, sticky="e")
 
-    def on_export_table_button(self, save_as="pdf"):
+    def on_export_table_button(self, save_as="xlsx"):
         data = []
         row = 0
         while self.inner_frame.grid_slaves(row=row, column=0) != []:
@@ -133,15 +130,7 @@ class VergleichGui:
             data.append(row_content)
             row += 1
 
-        if save_as == "pdf":
-            if data[0] == [""]:
-                data.pop(0)
-            export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file",
-                                                       initialfile="Plagiat " + "-".join(data[0]).strip(
-                                                           '\t\n ') + ".pdf",
-                                                       filetypes=(("pdf files", "*.pdf"), ("all files", "*.*")))
-            FileEditor.table_to_pdf_export(export_path, data, type="vergleich")
-        elif save_as == "xlsx":
+        if save_as == "xlsx":
             export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file",
                                                        initialfile="Plagiat " + "-".join(data[0]) + ".xlsx",
                                                        filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))

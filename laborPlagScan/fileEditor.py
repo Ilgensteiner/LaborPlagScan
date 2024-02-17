@@ -1,13 +1,15 @@
-import json
 import os
 import pickle
 import tkinter
 import zipfile
 import tkinter as tk
 from tkinter import filedialog
-import reportlab.lib.pagesizes as pagesizes
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus.doctemplate import LayoutError
+import shutil
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 
@@ -131,48 +133,41 @@ def get_string_lines(string: str, lines: list):
     return ''.join(content_parts)
 
 
-def table_to_pdf_export(savepath: str, data: list):
-    """Erstellt eine PDF-Datei aus einer Tabelle
-    :param savepath: Pfad, in dem die PDF-Datei gespeichert werden soll
-    :param data: Liste mit den Daten, die in der Tabelle angezeigt werden sollen"""
-    print(data)
-    # Erzeugen einer temporären PDF-Datei
+def table_to_pdf_export(savepath: str, data: list, format=A4):
+
     temp_filename = 'laborPlagScan/result/temp.pdf'
 
-    # Erzeugen der Tabelle
-    table = Table(data)
+    try:
+        table = Table(data)
 
-    # Definieren des Tabellenstils
-    style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 2),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 8),
-        ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
-    ])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 2),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
+        ]))
 
-    # Anwenden des Tabellenstils auf die Tabelle
-    table.setStyle(style)
+        doc = SimpleDocTemplate(temp_filename, pagesize=format, rightMargin=10, leftMargin=10, topMargin=5, bottomMargin=5)
 
-    # Erzeugen des PDF-Dokuments mit angepasster Breite
-    doc = SimpleDocTemplate(temp_filename, pagesize=pagesizes.A4, rightMargin=10, leftMargin=10, topMargin=5, bottomMargin=5)
+        elements = [table]
+        doc.build(elements)
 
-    # Inhalt zum PDF-Dokument hinzufügen
-    elements = []
-    elements.append(table)
-    doc.build(elements)
+        shutil.move(temp_filename, savepath)
 
-    # Verschieben der temporären PDF-Datei zur endgültigen Datei
-    import shutil
-    shutil.move(temp_filename, savepath)
+        print(f"Die PDF-Datei '{savepath}' wurde erfolgreich im Format {'Querformat' if format == landscape(A4) else 'Hochformat'} erstellt.")
+    except LayoutError as e:
+        if format == landscape((297, 210)):
+            raise Exception("LayoutError konnte nicht automatisch behoben werden.")
 
-    print(f"Die PDF-Datei '{savepath}' wurde erfolgreich erstellt.")
+        print("LayoutError erkannt, wechsle zu Querformat und versuche erneut.")
+        table_to_pdf_export(savepath, data, format=landscape((297, 210)))
 
 
 def table_to_xlsx_export(savepath: str, data: list):

@@ -187,7 +187,7 @@ class AuswertungGui:
         FileEditor.save_auswertung_to_file(self.plagiatPaareList, None, "Auswertung")
 
     def on_export_table_button(self, save_as="pdf"):
-        data = []
+        data = [["Studenten", "Plagiat-Anteil"]]
         row = 0
         while self.data_frame.grid_slaves(row=row, column=0) != []:
             column = 0
@@ -196,7 +196,7 @@ class AuswertungGui:
                 grid_widget = self.data_frame.grid_slaves(row=row, column=column)[0]
                 if grid_widget.widgetName == "frame":
                     frameinhalt = list(grid_widget.children.values())
-                    row_content.append(frameinhalt[0].cget("text").split("  [")[0].replace("\t", "    "))
+                    row_content.append(frameinhalt[0].cget("text").split("[")[0].replace("\t", "    "))
                     row_content.append(frameinhalt[1].cget("text"))
                 else:
                     row_content.append(grid_widget.cget("text").replace("\t", "    "))
