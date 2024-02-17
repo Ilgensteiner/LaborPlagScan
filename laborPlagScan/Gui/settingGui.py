@@ -1,17 +1,7 @@
-import ast
 import tkinter as tk
 from tkinter import ttk
 
-
-def read_filters_from_file():
-    with open('./filter.txt', 'r') as f:
-        filter_list = ast.literal_eval(f.read())
-    return filter_list
-
-
-def save_filters_to_file(filters):
-    with open('./filter.txt', 'w') as f:
-        f.write(repr(filters))
+from laborPlagScan.filter import read_filters_from_file, save_filters_to_file
 
 
 class SettingsGUI:
@@ -111,10 +101,15 @@ class SettingsGUI:
         self.filter_row += 1
 
         if name == "ignorePrintStatemants":
-            checkbox = ttk.Checkbutton(row, text="Print-Statements ignorieren", variable="var", onvalue=True, offvalue=False)
+            checkbox = ttk.Checkbutton(row, text="Print-Statements ignorieren", variable="varIgnorePrintStatemants", onvalue=True, offvalue=False)
             checkbox.pack(side=tk.LEFT, padx=(0, 5))
-            checkbox.setvar("var", value)
+            checkbox.setvar("varIgnorePrintStatemants", value)
             self.settingsVars["ignorePrintStatemants"] = checkbox
+        elif name == "ignoreGetterSetter":
+            checkbox = ttk.Checkbutton(row, text="Getter/Setter ignorieren", variable="varIgnoreGetterSetter", onvalue=True, offvalue=False)
+            checkbox.pack(side=tk.LEFT, padx=(0, 5))
+            checkbox.setvar("varIgnoreGetterSetter", value)
+            self.settingsVars["ignoreGetterSetter"] = checkbox
         elif name == "PlagiatAlert":
             ttk.Label(row, text="Plagiate speichern ab %:").pack(side=tk.LEFT, padx=(0, 5))
             entry = ttk.Entry(row)
@@ -129,14 +124,14 @@ class SettingsGUI:
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def save(self):
-        settings_dict = {"ignorePrintStatemants": self.settingsVars["ignorePrintStatemants"].getvar("var"), "PlagiatAlert": self.settingsVars["PlagiatAlert"].get()}
+        settings_dict = {"ignorePrintStatemants": self.settingsVars["ignorePrintStatemants"].getvar("varIgnorePrintStatemants"), "ignoreGetterSetter": self.settingsVars["ignoreGetterSetter"].getvar("varIgnoreGetterSetter"), "PlagiatAlert": self.settingsVars["PlagiatAlert"].get()}
         updated_filters = [entry.get() for _, entry in self.entries]
         updated_filters.insert(0, settings_dict)
         save_filters_to_file(updated_filters)
         self.master.destroy()
 
     def reset(self):
-        filters = [{"ignorePrintStatemants": True, "PlagiatAlert": 30}, '', 'this.x = x;', 'Regex:(protected|private|public)\s(static\s)?(String|double|float|boolean|int)\s(x;)', 'Regex:(public)\s(String|double|float|boolean|int)\s(x\(\) {)', 'Regex:(return)\s(x;)', 'Regex:(public\svoid\sx\()(String|double|float|boolean|int)\s(x\) {)', 'Regex:(this\.x\s=\sx;)', 'Regex:(\})']
+        filters = [{"ignorePrintStatemants": True, 'ignoreGetterSetter': True, "PlagiatAlert": 30}, '', 'Regex:(\s?(protected|private|public)\s(static\s)?(String|double|float|boolean|int)\s(x\s?;\s?))', 'Regex:(\s?(public)\s(String|double|float|boolean|int)\s(x\(\)\s?{\s?))', 'Regex:(\s?(return)\s(x\s?;\s?))', 'Regex:(\s?public\svoid\sx\()(String|double|float|boolean|int)\s(x\) {)', 'Regex:(\s?this\.x\s?=\s?x\s?;\s?)', 'Regex:(\})']
         save_filters_to_file(filters)
         self.master.destroy()
 

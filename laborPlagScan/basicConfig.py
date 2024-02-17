@@ -7,7 +7,6 @@ import tkinter as tk
 ERROR_WINDOW_OPEN = False
 
 
-# TODO: Mit GUI Update verschieben in Parent
 def showErrorMassage(msg, log_dir, custom_msg: str = None):
     def open_logs_folder():
         # Plattformabhängige Methode, um den Ordner zu öffnen
