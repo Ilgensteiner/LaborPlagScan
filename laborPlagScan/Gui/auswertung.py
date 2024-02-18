@@ -169,11 +169,11 @@ class AuswertungGui:
         if len(self.openVerlauf) == 2:
             self.openVerlauf[0][0].plagiatStatus = "checked"
             self.openVerlauf[0][1].config(
-                text=f"{self.openVerlauf[0][0].student1.name} - {self.openVerlauf[0][0].student2.name}\t[{self.openVerlauf[0][0].plagiatStatus}]")
+                text=f"{self.openVerlauf[0][0].student1.name[-15:]} - {self.openVerlauf[0][0].student2.name[-15:]}\t[{self.openVerlauf[0][0].plagiatStatus}]")
 
         plagiatPaar.plagiatStatus = "last opened"
         name_button.config(
-            text=f"{plagiatPaar.student1.name} - {plagiatPaar.student2.name}\t[{plagiatPaar.plagiatStatus}]")
+            text=f"{plagiatPaar.student1.name[-15:]} - {plagiatPaar.student2.name[-15:]}\t[{plagiatPaar.plagiatStatus}]")
         name_button.update()
 
     def on_student_button(self, plagiatPaar_auswahl, name_button_auswahl):
