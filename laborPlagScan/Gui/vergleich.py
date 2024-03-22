@@ -5,10 +5,14 @@ from tkinter import ttk, filedialog, messagebox
 from laborPlagScan.DataModels.plagiatPaare import PlagiatPaare
 import laborPlagScan.Gui.auswertung as AuswertungGui
 import laborPlagScan.fileEditor as FileEditor
+from laborPlagScan.DataModels.student import Student
+from laborPlagScan.filter import Filter
 
 
 class VergleichGui:
-    def __init__(self, plagiatPaar: PlagiatPaare, auswertung_gui: AuswertungGui, plagiat_button: tk.Button):
+    def __init__(self, plagiatPaar: PlagiatPaare = None, single_Student: Student = None):
+        if plagiatPaar is None and single_Student is None:
+            raise Exception("No PlagiatPaar or Student given")
         self.root = tk.Tk()
         self.root.geometry("600x350")
         self.root.title("PlagScan for Java-Labore")
@@ -47,7 +51,10 @@ class VergleichGui:
         canvas.bind_all("<Button-4>", lambda event: canvas.xview_scroll(-1, "units"))
         canvas.bind_all("<Button-5>", lambda event: canvas.xview_scroll(1, "units"))
 
-        self.display_stud_vergleich(plagiatPaar)
+        if plagiatPaar is not None:
+            self.display_stud_vergleich(plagiatPaar)
+        else:
+            self.display_stud(single_Student)
         self.create_button_panel_einzelauswertung()
 
         self.root.mainloop()
@@ -87,6 +94,52 @@ class VergleichGui:
         plagiatPaar.markPlagiatCodeinFiles()
         display_Files(plagiatPaar.student1.files, 0)
         display_Files(plagiatPaar.student2.files, 1)
+
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        self.vergl_table.columnconfigure(0, weight=1)
+        self.vergl_table.rowconfigure(0, weight=1)
+        self.inner_frame.columnconfigure(list(range(2)), weight=1)
+
+        self.root.update()
+
+    def display_stud(self, student: Student):
+        ttk.Label(self.inner_frame, text=student.name, background="white", foreground="black", padding=5,
+                  font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=0, column=0, sticky="nsew")
+
+        row = 1
+        for file in student.files:
+            ttk.Label(self.inner_frame, text=file.name, background="white", foreground="black", padding=5,
+                      font=("Calibri", 12), borderwidth=2, relief="solid").grid(row=row, column=0,
+                                                                                sticky="nsew")
+            row += 1
+
+            file_textfeld = tk.Text(self.inner_frame, background="white", foreground="black", font=("Calibri", 12),
+                                    borderwidth=2, relief="solid")
+            file_textfeld.grid(row=row, column=0, sticky="nsew")
+            file_textfeld.tag_config("red", foreground="red")
+            file_textfeld.insert(tk.END, re.sub(r' {3,}', '   ', str(file.getFileString()).expandtabs(2)))
+            height = int(file_textfeld.index('end-1c').split('.')[0])
+            max_line_length = max(
+                [len(line.strip("\n\t\r")) for line in file_textfeld.get("1.0", "end-1c").split("\n")])
+            file_textfeld.configure(state="disabled", yscrollcommand=lambda *args: None,
+                                    xscrollcommand=lambda *args: None, height=height,
+                                    width=int(max_line_length * 0.9), padx=5)
+
+            for injectedVar in Filter.getAiDetactionVarsList():
+                # Startposition
+                start_pos = '1.0'
+                while True:
+                    # Finde das nächste Vorkommen des Wortes
+                    start_pos = file_textfeld.search(injectedVar, start_pos, nocase=True, stopindex=tk.END)
+                    if not start_pos:
+                        break
+                    # Ende der Markierung für dieses Vorkommen finden
+                    end_pos = f'{start_pos}+{len(injectedVar)}c'
+                    # Tag hinzufügen
+                    file_textfeld.tag_add('red', start_pos, end_pos)
+                    # Update der Startposition für die nächste Suche
+                    start_pos = end_pos
 
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
