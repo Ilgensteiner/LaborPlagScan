@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 from laborPlagScan.DataModels.plagiatPaare import PlagiatPaare
+from laborPlagScan.DataModels.student import Student
 from laborPlagScan.Gui.vergleich import VergleichGui
 import laborPlagScan.fileEditor as FileEditor
 
@@ -22,8 +23,10 @@ def on_leave(e):
 
 
 class AuswertungGui:
-    def __init__(self, plagiatPaareList: [PlagiatPaare]):
+    def __init__(self, plagiatPaareList: [PlagiatPaare], aiDetectedStudentList: [Student]):
         self.plagiatPaareList = plagiatPaareList
+        self.aiDetectedStudentList = aiDetectedStudentList
+        print(f"aiDetectedStudentList: {self.aiDetectedStudentList}")
         self.openVerlauf = []
 
         self.root = tk.Tk()
@@ -181,10 +184,10 @@ class AuswertungGui:
         threading.Thread(target=VergleichGui, args=(plagiatPaar_auswahl, self, name_button_auswahl)).start()
 
     def on_speichern_button_click(self):
-        FileEditor.save_auswertung_to_file(self.plagiatPaareList)
+        FileEditor.save_auswertung_to_file([self.plagiatPaareList, self.aiDetectedStudentList])
 
     def on_export_savefile_button(self):
-        FileEditor.save_auswertung_to_file(self.plagiatPaareList, None, "Auswertung")
+        FileEditor.save_auswertung_to_file([self.plagiatPaareList, self.aiDetectedStudentList], None, "Auswertung")
 
     def on_export_table_button(self, save_as="pdf"):
         data = [["Studenten", "Plagiat-Anteil"]]

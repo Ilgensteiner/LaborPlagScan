@@ -131,9 +131,13 @@ def plagscan(students_folder: str):
 
     # 3. Schleife für alle Kombinationen von Studenten
     plagiat_list = []
+    aiDetected_stud_list = []
     mainGUI.GUI.set_progressbar_start((math.pow(len(student_folders_list), 2) / 2))
     mainGUI.GUI.set_info_text("Files werden verglichen...")
     for i, student1 in enumerate(studenten):
+        if student1.aiDetection:
+            aiDetected_stud_list.append(student1)
+
         for student2 in list(studenten)[i + 1:]:
             PlagiatPaar = PlagiatPaare(student1, student2)
             for file1 in student1.files:
@@ -160,4 +164,4 @@ def plagscan(students_folder: str):
     plagiat_list_sorted = sorted(plagiat_list, key=lambda paar: paar.plagiatAnteil, reverse=True)
 
     # 6. Ergebnis speichern
-    FileEditor.save_auswertung_to_file(plagiat_list_sorted)
+    FileEditor.save_auswertung_to_file([plagiat_list_sorted, aiDetected_stud_list])

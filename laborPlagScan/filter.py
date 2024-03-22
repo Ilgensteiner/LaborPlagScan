@@ -21,6 +21,7 @@ class Filter:
     ignore_files = []
     filter_strings = []
     regexpattern_list = []
+    aiDetactionVarsList = ["modell"]
 
     @staticmethod
     def readFilter():
@@ -70,3 +71,7 @@ class Filter:
     @staticmethod
     def getRegexpatternList():
         return Filter.regexpattern_list
+
+    @staticmethod
+    def getAiDetactionVarsList():
+        return Filter.aiDetactionVarsList
