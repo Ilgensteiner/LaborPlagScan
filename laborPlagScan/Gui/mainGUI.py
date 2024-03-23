@@ -152,7 +152,7 @@ class GUI:
         try:
             auswertung = FileEditor.load_auswertung_from_file(filename)
             GUI.root.destroy()
-            table = AuswertungGui(auswertung)
+            table = AuswertungGui(auswertung[0], auswertung[1])
         except FileNotFoundError:
             print("File not found")
 

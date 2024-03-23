@@ -15,12 +15,14 @@ def save_filters_to_file(filters):
 
 
 class Filter:
+    filterLoaded = False
     ignorePrintStatemants = False
     ignoreGetterSetter = False
     PlagiatAlert = 0
     ignore_files = []
     filter_strings = []
     regexpattern_list = []
+    aiDetactionVarsList = []
 
     @staticmethod
     def readFilter():
@@ -41,6 +43,8 @@ class Filter:
                 regexpattern_list_pre.append(readed_filter[1])
             elif readed_filter[0] == "File":
                 Filter.ignore_files.append(readed_filter[1].strip().lower())
+            elif readed_filter[0] == "AI-Var":
+                Filter.aiDetactionVarsList.append(readed_filter[1])
             else:
                 Filter.filter_strings.append(filter_str)
 
@@ -51,22 +55,40 @@ class Filter:
             Filter.regexpattern_list.append(re.compile(r'(\s*public\s*\w+\s*x\s*\(\s*\w*\s*x?\s*\)\s*\{?\s*)'))
             Filter.regexpattern_list.append(re.compile(r'(\s*return this\.x;\s*)'))
 
+        Filter.filterLoaded = True
+
     @staticmethod
     def getIgnorePrintStatemants():
+        if not Filter.filterLoaded:
+            Filter.readFilter()
         return Filter.ignorePrintStatemants
 
     @staticmethod
     def getPlagiatAlert():
+        if not Filter.filterLoaded:
+            Filter.readFilter()
         return Filter.PlagiatAlert
 
     @staticmethod
     def getIgnoreFiles():
+        if not Filter.filterLoaded:
+            Filter.readFilter()
         return Filter.ignore_files
 
     @staticmethod
     def getFilterStrings():
+        if not Filter.filterLoaded:
+            Filter.readFilter()
         return Filter.filter_strings
 
     @staticmethod
     def getRegexpatternList():
+        if not Filter.filterLoaded:
+            Filter.readFilter()
         return Filter.regexpattern_list
+
+    @staticmethod
+    def getAiDetactionVarsList():
+        if not Filter.filterLoaded:
+            Filter.readFilter()
+        return Filter.aiDetactionVarsList
