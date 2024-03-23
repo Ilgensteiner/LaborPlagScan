@@ -110,6 +110,9 @@ class AuswertungGui:
         self.root.update_idletasks()
 
     def plagiatAuflistung(self):
+        if len(self.plagiatPaareList) == 0:
+            return
+
         self.rowInDataframe += 1
         heading_frame = tk.Frame(self.data_frame)
         heading_frame.grid(row=self.rowInDataframe, column=0, sticky="ew")
@@ -170,6 +173,9 @@ class AuswertungGui:
             self.update_inner_frame()
 
     def aiDetectedAuflistung(self):
+        if len(self.aiDetectedStudentList) == 0:
+            return
+
         self.rowInDataframe += 1
         heading_frame = tk.Frame(self.data_frame)
         heading_frame.grid(row=self.rowInDataframe, column=0, sticky="ew")
@@ -241,7 +247,8 @@ class AuswertungGui:
                 if grid_widget.widgetName == "frame":
                     frameinhalt = list(grid_widget.children.values())
                     row_content.append(frameinhalt[0].cget("text").split("[")[0].replace("\t", "    "))
-                    row_content.append(frameinhalt[1].cget("text"))
+                    if len(frameinhalt) > 1:
+                        row_content.append(frameinhalt[1].cget("text"))
                 else:
                     row_content.append(grid_widget.cget("text").replace("\t", "    "))
                 column += 1
