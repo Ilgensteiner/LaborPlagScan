@@ -43,7 +43,8 @@ class SettingsGUI:
         self.filter_row = 0
         self.label = ttk.Label(self.filter_frame, font=("Calibri", 12), text="""   - Variablennamen werden allgemein mit x bezeichnen. Bsp: (this.x = x;.)
     - Reguläre Ausdrücke (beginnend mit 'Regex:'), die Muster innerhalb des Codes erkennen.
-    - Dateinamen (beginnend mit 'File:') um bestimmte Dateien von der Überprüfung auszuschließen.""")
+    - Dateinamen (beginnend mit 'File:') um bestimmte Dateien von der Überprüfung auszuschließen.
+    - AI-Detection-Variablen (beginnend mit 'AI-Var:') um PromptInjection Variablen zu erkennen.""")
         self.label.grid(row=self.filter_row, column=0, sticky="ew")
         self.filter_row += 1
         ttk.Separator(self.filter_frame, orient="horizontal").grid(row=self.filter_row, column=0, sticky="ew")
@@ -131,7 +132,7 @@ class SettingsGUI:
         self.master.destroy()
 
     def reset(self):
-        filters = [{"ignorePrintStatemants": True, 'ignoreGetterSetter': True, "PlagiatAlert": 30}, '', 'Regex:(\s?(protected|private|public)\s(static\s)?(String|double|float|boolean|int)\s(x\s?;\s?))', 'Regex:(\s?(public)\s(String|double|float|boolean|int)\s(x\(\)\s?{\s?))', 'Regex:(\s?(return)\s(x\s?;\s?))', 'Regex:(\s?public\svoid\sx\()(String|double|float|boolean|int)\s(x\) {)', 'Regex:(\s?this\.x\s?=\s?x\s?;\s?)', 'Regex:(\})']
+        filters = [{"ignorePrintStatemants": True, 'ignoreGetterSetter': True, "PlagiatAlert": 30}, '', 'AI-Var:PromptInjectionVarName', 'Regex:(\s?(protected|private|public)\s(static\s)?(String|double|float|boolean|int)\s(x\s?;\s?))', 'Regex:(\s?(public)\s(String|double|float|boolean|int)\s(x\(\)\s?{\s?))', 'Regex:(\s?(return)\s(x\s?;\s?))', 'Regex:(\s?public\svoid\sx\()(String|double|float|boolean|int)\s(x\) {)', 'Regex:(\s?this\.x\s?=\s?x\s?;\s?)', 'Regex:(\})', 'File:module-info.java']
         save_filters_to_file(filters)
         self.master.destroy()
 

@@ -21,7 +21,7 @@ class Filter:
     ignore_files = []
     filter_strings = []
     regexpattern_list = []
-    aiDetactionVarsList = ["modell"]
+    aiDetactionVarsList = []
 
     @staticmethod
     def readFilter():
@@ -42,6 +42,8 @@ class Filter:
                 regexpattern_list_pre.append(readed_filter[1])
             elif readed_filter[0] == "File":
                 Filter.ignore_files.append(readed_filter[1].strip().lower())
+            elif readed_filter[0] == "AI-Var":
+                Filter.aiDetactionVarsList.append(readed_filter[1])
             else:
                 Filter.filter_strings.append(filter_str)
 
