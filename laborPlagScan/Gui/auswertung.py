@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 from laborPlagScan.DataModels.plagiatPaare import PlagiatPaare
+from laborPlagScan.DataModels.student import Student
 from laborPlagScan.Gui.vergleich import VergleichGui
 import laborPlagScan.fileEditor as FileEditor
 
@@ -22,8 +23,9 @@ def on_leave(e):
 
 
 class AuswertungGui:
-    def __init__(self, plagiatPaareList: [PlagiatPaare]):
+    def __init__(self, plagiatPaareList: [PlagiatPaare], aiDetectedStudentList: [Student]):
         self.plagiatPaareList = plagiatPaareList
+        self.aiDetectedStudentList = aiDetectedStudentList
         self.openVerlauf = []
 
         self.root = tk.Tk()
@@ -79,6 +81,7 @@ class AuswertungGui:
 
         self.rowInDataframe = 0
         self.plagiatAuflistung()
+        self.aiDetectedAuflistung()
 
         # Button-Panel erstellen
         button_panel = ttk.Frame(self.root)
@@ -107,6 +110,19 @@ class AuswertungGui:
         self.root.update_idletasks()
 
     def plagiatAuflistung(self):
+        if len(self.plagiatPaareList) == 0:
+            return
+
+        self.rowInDataframe += 1
+        heading_frame = tk.Frame(self.data_frame)
+        heading_frame.grid(row=self.rowInDataframe, column=0, sticky="ew")
+
+        name_button = tk.Button(heading_frame)
+        name_button.configure(text="Plagiate", bg="white", foreground="black", padx=5, pady=5, justify="left",
+                              anchor="center", font=("Calibri", 12), borderwidth=0.5, relief="solid")
+        name_button.grid(row=0, column=0, sticky="ew")
+        heading_frame.columnconfigure(0, weight=1)
+
         for plagiatPaar in self.plagiatPaareList:
             self.rowInDataframe += 1
 
@@ -118,7 +134,7 @@ class AuswertungGui:
             name_button.configure(text=name_button_text, bg="white", foreground="black", padx=5, pady=5, justify="left",
                                   anchor="w", font=("Calibri", 12), borderwidth=0.5, relief="solid",
                                   command=lambda plagiatPaar_auswahl=plagiatPaar,
-                                                 name_button_auswahl=name_button: self.on_student_button(
+                                                 name_button_auswahl=name_button: self.on_plagiatPaar_button(
                                       plagiatPaar_auswahl, name_button_auswahl))
             name_button.grid(row=0, column=0, sticky="ew")
             name_button.bind("<Enter>", on_enter)
@@ -133,7 +149,7 @@ class AuswertungGui:
                                           borderwidth=0.5,
                                           relief="solid", width=8,
                                           command=lambda plagiatPaar_auswahl=plagiatPaar,
-                                                         name_button_auswahl=name_button: self.on_student_button(
+                                                         name_button_auswahl=name_button: self.on_plagiatPaar_button(
                                               plagiatPaar_auswahl, name_button_auswahl))
             accordance_button.grid(row=0, column=1, sticky="e")
             accordance_button.bind("<Enter>", on_enter)
@@ -156,6 +172,37 @@ class AuswertungGui:
             self.root.update()
             self.update_inner_frame()
 
+    def aiDetectedAuflistung(self):
+        if len(self.aiDetectedStudentList) == 0:
+            return
+
+        self.rowInDataframe += 1
+        heading_frame = tk.Frame(self.data_frame)
+        heading_frame.grid(row=self.rowInDataframe, column=0, sticky="ew")
+
+        name_button = tk.Button(heading_frame)
+        name_button.configure(text="AI Detected", bg="white", foreground="black", padx=5, pady=5, justify="left",
+                              anchor="center", font=("Calibri", 12), borderwidth=0.5, relief="solid")
+        name_button.grid(row=0, column=0, sticky="ew")
+        heading_frame.columnconfigure(0, weight=1)
+
+        for student in self.aiDetectedStudentList:
+            self.rowInDataframe += 1
+
+            button_frame = tk.Frame(self.data_frame)
+            button_frame.grid(row=self.rowInDataframe, column=0, sticky="ew")
+
+            name_button = tk.Button(button_frame)
+            name_button.configure(text=student.name, bg="white", foreground="black", padx=5, pady=5, justify="left",
+                                  anchor="w", font=("Calibri", 12), borderwidth=0.5, relief="solid",
+                                  command=lambda student_auswahl=student: self.on_student_button(
+                                      student_auswahl))
+            name_button.grid(row=0, column=0, sticky="ew")
+            name_button.bind("<Enter>", on_enter)
+            name_button.bind("<Leave>", on_leave)
+
+            button_frame.columnconfigure(0, weight=1)
+
     def on_button_kein_Plagiat(self, plagiatPaar: PlagiatPaare, button_frame: tk.Frame):
         self.plagiatPaareList.remove(plagiatPaar)
         threading.Thread(target=self.on_speichern_button_click).start()  # Speichern in Datei
@@ -176,15 +223,18 @@ class AuswertungGui:
             text=f"{plagiatPaar.student1.name[-15:]} - {plagiatPaar.student2.name[-15:]}\t[{plagiatPaar.plagiatStatus}]")
         name_button.update()
 
-    def on_student_button(self, plagiatPaar_auswahl, name_button_auswahl):
+    def on_plagiatPaar_button(self, plagiatPaar_auswahl, name_button_auswahl):
         self.update_student_status_button(plagiatPaar_auswahl, name_button_auswahl)
-        threading.Thread(target=VergleichGui, args=(plagiatPaar_auswahl, self, name_button_auswahl)).start()
+        threading.Thread(target=VergleichGui, kwargs={'plagiatPaar': plagiatPaar_auswahl}).start()
+
+    def on_student_button(self, student_auswahl):
+        threading.Thread(target=VergleichGui, kwargs={'single_Student': student_auswahl}).start()
 
     def on_speichern_button_click(self):
-        FileEditor.save_auswertung_to_file(self.plagiatPaareList)
+        FileEditor.save_auswertung_to_file([self.plagiatPaareList, self.aiDetectedStudentList])
 
     def on_export_savefile_button(self):
-        FileEditor.save_auswertung_to_file(self.plagiatPaareList, None, "Auswertung")
+        FileEditor.save_auswertung_to_file([self.plagiatPaareList, self.aiDetectedStudentList], None, "Auswertung")
 
     def on_export_table_button(self, save_as="pdf"):
         data = [["Studenten", "Plagiat-Anteil"]]
@@ -197,7 +247,8 @@ class AuswertungGui:
                 if grid_widget.widgetName == "frame":
                     frameinhalt = list(grid_widget.children.values())
                     row_content.append(frameinhalt[0].cget("text").split("[")[0].replace("\t", "    "))
-                    row_content.append(frameinhalt[1].cget("text"))
+                    if len(frameinhalt) > 1:
+                        row_content.append(frameinhalt[1].cget("text"))
                 else:
                     row_content.append(grid_widget.cget("text").replace("\t", "    "))
                 column += 1

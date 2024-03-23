@@ -14,6 +14,7 @@ from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 
 import laborPlagScan.Gui.mainGUI as mainGUI
+from laborPlagScan.DataModels.plagiatPaare import PlagiatPaare
 from laborPlagScan.DataModels.student import Student
 
 
@@ -92,7 +93,7 @@ def save_auswertung_to_file(obj, path="laborPlagScan/result/", filename="last_re
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
 
-def load_auswertung_from_file(filename=None) -> [Student]:
+def load_auswertung_from_file(filename=None) -> [[PlagiatPaare], [Student]]:
     """Loads the 'auswertung' Objects from a pickle-file"""
     if filename is None:
         filepath = tkinter.filedialog.askopenfilename(initialdir="/", title="Select file")

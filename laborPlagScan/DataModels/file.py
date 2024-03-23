@@ -66,6 +66,14 @@ def replace_words_in_file(file_list: list, word_list: set, java_operator_set: se
     return new_lines
 
 
+def search_for_aiVars(line):
+    """Searches for AI variables in a line"""
+    for var in Filter.aiDetactionVarsList:
+        if var in line:
+            return True
+    return False
+
+
 class File:
     def __init__(self, name, pfad):
         self.name = name
@@ -73,6 +81,7 @@ class File:
         self.fileInLines = []
         self.linesAufbereitet = []
         self.plagatierteZeilen = []
+        self.aiDetection = False
 
         self.file_to_list()
         self.lineCount = len(self.fileInLines)
@@ -99,6 +108,9 @@ class File:
                     self.fileInLines.append(line_list)
                     i += 1
                 continue
+            if search_for_aiVars(line):
+                self.aiDetection = True
+
             line_list = [i, line]
             self.fileInLines.append(line_list)
             i += 1
