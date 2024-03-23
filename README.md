@@ -15,14 +15,16 @@ Labor Plagiat Scanner für Prog. an der HS-Harz. Ziel ist es die Abgaben der Stu
 4. Starte PlagScan
 5. Schaue dir die Ergebnisse an
 
-### Filter
+## Einstellungen des PlagiatScanners
 
-1. Öffne `filter.txt` und passe die Liste an
-2. Die Filter werden automatisch angewendet
-3. Syntax:
-    1. Inhalte immer in Anführungszeichen ''
-    2. Variablen Namen (bzw. alles was keine Syntax ist) mit x ersetzen
-    3. Für Verwendung von REGEX: 'Regex:[A-Z]*' (Beispiel)
+Mit den Einstellungen des PlagiatScanners kannst du verschiedene Parameter anpassen, um die Effizienz und Genauigkeit der Plagiaterkennung zu verbessern. Hier findest du eine Übersicht der verfügbaren Einstellungsoptionen.
+
+### Filter
+Die Filteroptionen ermöglichen es dir, spezifische Abschnitte oder Codezeilen zu ignorieren, damit diese nicht fälschlicherweise als Plagiate identifiziert werden.
+1. Variablennamen: Standardmäßig werden Variablennamen im Code mit 'x' bezeichnet. Beispiel: this.x = x;. Diese Konvention hilft, den Code einheitlich zu halten.
+2. Reguläre Ausdrücke (Regex): Nutze reguläre Ausdrücke, um bestimmte Muster im Code zu identifizieren und zu ignorieren. Jede Regel sollte mit 'Regex:' eingeleitet werden. Diese Ausdrücke sind entscheidend, um diverse Codestrukturen zu erkennen und korrekt zu analysieren.
+3. Dateinamen: Mit dieser Einstellung kannst du bestimmte Dateien von der Überprüfung ausschließen. Verwende das Format 'File:Dateiname.extension', um gezielt Dateien auszuwählen, die nicht auf Plagiate geprüft werden sollen.
+4. AI-Detection-Variablen: Durch diese Einstellung, eingeleitet mit 'AI-Var:', kannst du spezifische Variablen identifizieren, die durch KI-basierte PromptInjection in Aufgabenstellungen generiert wurden. Dies unterstützt die Erkennung von potenziellen Plagiaten, die durch künstliche Intelligenz entstanden sind.
 
 ## Beitragen
 
