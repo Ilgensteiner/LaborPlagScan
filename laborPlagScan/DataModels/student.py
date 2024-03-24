@@ -1,4 +1,3 @@
-import ast
 import os
 
 from laborPlagScan.DataModels.file import File
