@@ -47,7 +47,6 @@ def unpackZipFiles(folder_path: str):
 
         # 4. Entpacken der ZIP-Datei
         file_path = os.path.join(folder_path, file)
-        print(f"Entpacke Datei '{file}'")
         with zipfile.ZipFile(file_path, 'r') as zip_file:
             extract_path = os.path.join(folder_path, "extracted", file.replace(".zip", "").replace(" - ", "_").replace(".java", "").replace(".", "_"))
             zip_file.extractall(path=extract_path)
@@ -63,6 +62,11 @@ def unpackZipFiles(folder_path: str):
             return extract_path
 
     return os.path.dirname(extract_path)
+
+
+def remove_folder(folder_path):
+    """Removes a folder and all its content"""
+    shutil.rmtree(folder_path)
 
 
 def get_last_modified_file():

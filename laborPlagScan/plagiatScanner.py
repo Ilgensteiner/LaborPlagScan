@@ -51,7 +51,7 @@ def start_plagscan(selected_path, Gui: mainGUI):
         return
     mainGUI.GUI.set_info_text("Files entpackt")
     mainGUI.GUI.set_info_text("PlagiatScanner wird gestartet...")
-    plagscan(students_folder)
+    plagscan(students_folder, selected_path)
     mainGUI.GUI.remove_progressbar()
     Gui.create_open_result_button(None)
     mainGUI.GUI.set_info_text("PlagiatScanner abgeschlossen")
@@ -112,7 +112,7 @@ def create_stats(plagiat_list: PlagiatPaare) -> list:
     return [plagiatabschitte, len(plagiat_list)]
 
 
-def plagscan(students_folder: str):
+def plagscan(students_folder: str, selected_path: str):
     """Scans all files in the given folder for plagiarism"""
     # 1. Sammeln aller Java-Dateien für jeden Studenten
     student_folders_list = os.listdir(students_folder)
@@ -162,7 +162,13 @@ def plagscan(students_folder: str):
     threading.Thread(target=mainGUI.display_msgbox, args=("PlagScan", stats_text)).start()
 
     # 5. Ergebnis Sturktur erstellen und sortieren
+    mainGUI.GUI.set_info_text("Ergebnisse werden sortiert...")
     plagiat_list_sorted = sorted(plagiat_list, key=lambda paar: paar.plagiatAnteil, reverse=True)
 
     # 6. Ergebnis speichern
+    mainGUI.GUI.set_info_text("Ergebnisse gespeichert")
     FileEditor.save_auswertung_to_file([plagiat_list_sorted, aiDetected_stud_list])
+
+    # 7. Ordner mit den entpackten Dateien löschen
+    mainGUI.GUI.set_info_text("Ordner werden aufgeräumt🧹")
+    FileEditor.remove_folder(selected_path)
