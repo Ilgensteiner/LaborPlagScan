@@ -88,7 +88,8 @@ def compare_files(file1_lines: list, file2_lines: list) -> list:
                     start_datei2 = file2_lines[j][0]
                 count += 1
                 i += 1
-                if i >= len(file1_lines):
+                # Wenn Abstand zwischen den Zeilen größer als 15, dann kein zusammenhängendes Plagiat
+                if i >= len(file1_lines) or file1_lines[i][0] - file1_lines[i-1][0] >= 15:
                     if count >= 5:
                         plag_list.append([start_datei1, file1_lines[i - 1][0], start_datei2, file2_lines[j][0]])
                     break
