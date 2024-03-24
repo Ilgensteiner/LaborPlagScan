@@ -3,5 +3,3 @@
 .venv
 /.venv
 /logs/
-/tests/resources/Test_Labor/
-/tests/resources/Filter_Test_Labor/
