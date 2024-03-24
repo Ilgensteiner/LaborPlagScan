@@ -4,10 +4,9 @@ import tkinter
 import zipfile
 import tkinter as tk
 from tkinter import filedialog
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
-from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus.doctemplate import LayoutError
 import shutil
 from openpyxl import Workbook
@@ -47,7 +46,6 @@ def unpackZipFiles(folder_path: str):
 
         # 4. Entpacken der ZIP-Datei
         file_path = os.path.join(folder_path, file)
-        print(f"Entpacke Datei '{file}'")
         with zipfile.ZipFile(file_path, 'r') as zip_file:
             extract_path = os.path.join(folder_path, "extracted", file.replace(".zip", "").replace(" - ", "_").replace(".java", "").replace(".", "_"))
             zip_file.extractall(path=extract_path)
@@ -63,6 +61,11 @@ def unpackZipFiles(folder_path: str):
             return extract_path
 
     return os.path.dirname(extract_path)
+
+
+def remove_folder(folder_path):
+    """Removes a folder and all its content"""
+    shutil.rmtree(folder_path)
 
 
 def get_last_modified_file():
@@ -134,7 +137,7 @@ def get_string_lines(string: str, lines: list):
     return ''.join(content_parts)
 
 
-def table_to_pdf_export(savepath: str, data: list, format=A4):
+def table_to_pdf_export(savepath: str, data: list, print_format=A4):
 
     temp_filename = 'laborPlagScan/result/temp.pdf'
 
@@ -155,7 +158,7 @@ def table_to_pdf_export(savepath: str, data: list, format=A4):
             ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
         ]))
 
-        doc = SimpleDocTemplate(temp_filename, pagesize=format, rightMargin=10, leftMargin=10, topMargin=5, bottomMargin=5)
+        doc = SimpleDocTemplate(temp_filename, pagesize=print_format, rightMargin=10, leftMargin=10, topMargin=5, bottomMargin=5)
 
         elements = [table]
         doc.build(elements)
