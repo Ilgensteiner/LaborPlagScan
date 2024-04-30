@@ -20,9 +20,8 @@ java_syntax_words = {"abstract", "assert", "boolean", "break", "byte", "case", "
                      "next", "hasNext", "hasNextLine", "hasNextInt", "hasNextDouble", "hasNextBoolean", "hasNextByte",
                      "hasNextFloat", "hasNextLong", "hasNextShort", "hasNextBigDecimal", "hasNextBigInteger",
                      "hasNextBigInteger", "hasNextBigDecimal", "hasNextBigInteger", "Main", "main", "args", "array",
-                     "temp", "Exception", "printStackTrace", "getMessage", "abstrakt", "@override", "@Override",
-                     "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize", "getClass",
-                     "IllegalArgumentException"}
+                     "temp", "printStackTrace", "getMessage", "abstrakt", "@override", "@Override",
+                     "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize", "getClass"}
 
 java_syntax_chars = {"{", "}", "(", ")", "[", "]", ";", "=", ":", ",", "+", "-", "*", "%", "++", "--", "==", "!=", ">",
                      "<", ">=", "<=", "&&", "||", "!", "&", "|", "^", "~", "<<", ">>", ">>>", "+=", "-=", "*=", "/=",

@@ -13,9 +13,8 @@ java_syntax_words = {"abstract", "assert", "boolean", "break", "byte", "case", "
                      "next", "hasNext", "hasNextLine", "hasNextInt", "hasNextDouble", "hasNextBoolean", "hasNextByte",
                      "hasNextFloat", "hasNextLong", "hasNextShort", "hasNextBigDecimal", "hasNextBigInteger",
                      "hasNextBigInteger", "hasNextBigDecimal", "hasNextBigInteger", "Main", "main", "args", "array",
-                     "temp", "Exception", "printStackTrace", "getMessage", "abstrakt", "@override", "@Override",
-                     "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize", "getClass",
-                     "IllegalArgumentException"}
+                     "temp", "printStackTrace", "getMessage", "abstrakt", "@override", "@Override",
+                     "Override", "toString", "equals", "hashCode", "clone", "compareTo", "finalize", "getClass"}
 
 java_syntax_chars = {"{", "}", "(", ")", "[", "]", ";", "=", ":", ",", "+", "-", "*", "%", "++", "--", "==", "!=", ">",
                      "<", ">=", "<=", "&&", "||", "!", "&", "|", "^", "~", "<<", ">>", ">>>", "+=", "-=", "*=", "/=",
@@ -58,6 +57,9 @@ def replace_words_in_file(file_list: list, word_list: set, java_operator_set: se
         # leerzeichen um Java zeichen und Operatoren entfernen
         pattern = r'\s*(' + '|'.join([re.escape(ch) for ch in sorted(java_syntax_chars, key=len, reverse=True)]) + r')\s*'
         new_line[1] = re.sub(pattern, r'\1', new_line[1])
+
+        # Java operatoren vereinfachen
+        new_line[1] = new_line[1].replace('<=', '<').replace('>=', '>').replace('&&', '&')
 
         # alles innerhalb von Anführungszeichen ersetzen durch ein "x"
         new_line[1] = re.sub(r'(["\']).*(["\'])', 'x', new_line[1])
