@@ -86,9 +86,11 @@ class File:
         self.aiDetection = False
 
         self.file_to_list()
-        self.lineCount = len(self.fileInLines)
         file_lines_prepared = replace_words_in_file(self.fileInLines, java_syntax_words, java_syntax_chars)
         self.filter_lines(file_lines_prepared)
+
+        self.lineCount_ungefiltert = len(self.fileInLines)
+        self.lineCount_gefiltert = len(self.linesAufbereitet)
 
     def file_to_list(self):
         """Converts a file to a list of lines, each line is a list with the line number and the line itself"""

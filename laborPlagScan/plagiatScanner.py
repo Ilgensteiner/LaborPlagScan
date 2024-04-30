@@ -150,7 +150,7 @@ def plagscan(students_folder: str, selected_path: str):
                         PlagiatPaar.addPlagiat(newPlagiat)
             PlagiatPaar.countPlagiatZeilenGes()
             PlagiatPaar.calcPlagiatAnteil()
-            if PlagiatPaar.plagiatAnteil > Filter.getPlagiatAlert():
+            if PlagiatPaar.plagiatAnteil_Absolut > Filter.getPlagiatAlert():
                 plagiat_list.append(PlagiatPaar)
             mainGUI.GUI.update_progressbar_value(1)
 
@@ -162,7 +162,7 @@ def plagscan(students_folder: str, selected_path: str):
 
     # 5. Ergebnis Sturktur erstellen und sortieren
     mainGUI.GUI.set_info_text("Ergebnisse werden sortiert...")
-    plagiat_list_sorted = sorted(plagiat_list, key=lambda paar: paar.plagiatAnteil, reverse=True)
+    plagiat_list_sorted = sorted(plagiat_list, key=lambda paar: paar.plagiatAnteil_Absolut, reverse=True)
 
     # 6. Ergebnis speichern
     mainGUI.GUI.set_info_text("Ergebnisse gespeichert")
