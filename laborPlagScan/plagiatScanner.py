@@ -71,11 +71,23 @@ def get_plagcode_from_filelist(file_as_list: list, plag_result: list) -> str:
 
 
 def compare_files(file1_lines: list, file2_lines: list) -> list:
-    """Compares two files and returns the lines of code that are the same in both files"""
+    """Compares two files and returns the lines of code that are the same in both files
+    @return List [[Plag_list], plag_zeilen_absolut, plag_zeilen_relativ]"""
 
     start_datei1 = 0
     start_datei2 = 0
     plag_list = []
+
+    plag_zeilen_absolut = 0
+    plag_zeilen_relativ = 0
+
+    def count_up_plagiat(position: int):
+        """Counts up the absolute and relative lines (filtered) of the plagiarism
+    --> Needs position of the last line of the plagiarism in the file1_lines list"""
+        nonlocal plag_zeilen_absolut
+        nonlocal plag_zeilen_relativ
+        plag_zeilen_absolut += file1_lines[position][0] - start_datei1 + 1
+        plag_zeilen_relativ += count
 
     i = 0
     while i < len(file1_lines):
@@ -91,13 +103,15 @@ def compare_files(file1_lines: list, file2_lines: list) -> list:
                 if i >= len(file1_lines) or file1_lines[i][0] - file1_lines[i-1][0] >= 15:
                     if count >= 5:
                         plag_list.append([start_datei1, file1_lines[i - 1][0], start_datei2, file2_lines[j][0]])
+                        count_up_plagiat(i - 1)
                     break
             else:
                 if count >= 5:
                     plag_list.append([start_datei1, file1_lines[i][0], start_datei2, file2_lines[j][0]])
+                    count_up_plagiat(i)
                 count = 0
         i += 1
-    return plag_list
+    return [plag_list, plag_zeilen_absolut, plag_zeilen_relativ]
 
 
 def create_stats(plagiat_list: PlagiatPaare) -> list:
@@ -143,10 +157,10 @@ def plagscan(students_folder: str, selected_path: str):
             for file1 in student1.files:
                 for file2 in student2.files:
                     plagiat = compare_files(file1.linesAufbereitet, file2.linesAufbereitet)
-                    if len(plagiat) == 0:
+                    if len(plagiat[0]) == 0:
                         continue
                     else:
-                        newPlagiat = Plagiat(file1, file2, plagiat)
+                        newPlagiat = Plagiat(file1, file2, plagiat[0], plagiat[1], plagiat[2])
                         PlagiatPaar.addPlagiat(newPlagiat)
             PlagiatPaar.countPlagiatZeilenGes()
             PlagiatPaar.calcPlagiatAnteil()
