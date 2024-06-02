@@ -9,7 +9,8 @@ class Student:
         self.name = name
         self.folderPath = os.path.join(extractedFolders, name)
         self.files = []  # Initialisiert eine leere Liste für File-Objekte
-        self.zeilenGes = 0  # Initialisiert die Gesamtzahl der Zeilen auf 0
+        self.zeilenGes_ungefiltert = 0  # Initialisiert die Gesamtzahl der Zeilen auf 0
+        self.zeilenGes_gefiltert = 0  # Initialisiert die Gesamtzahl der gefilterten Zeilen auf 0
         self.aiDetection = False
 
         self.find_java_files()
@@ -35,8 +36,12 @@ class Student:
                         if java_file.aiDetection:
                             self.aiDetection = True
 
+        # Sortiere die Dateien nach ihrem Namen
+        self.files.sort(key=lambda x: x.name)
+
     def getZeilenGes(self):
         """Returns the total number of lines of all files in the folder."""
         for file in self.files:
-            self.zeilenGes += file.lineCount
+            self.zeilenGes_ungefiltert += file.lineCount_ungefiltert
+            self.zeilenGes_gefiltert += file.lineCount_gefiltert
 

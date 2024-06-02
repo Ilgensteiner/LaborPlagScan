@@ -140,7 +140,7 @@ class AuswertungGui:
             name_button.bind("<Enter>", on_enter)
             name_button.bind("<Leave>", on_leave)
 
-            accordance_button_text = f"{round(plagiatPaar.plagiatAnteil)} %"
+            accordance_button_text = f"{round(plagiatPaar.plagiatAnteil_Absolut)} % ({round(plagiatPaar.plagiatAnteil_Relativ)} %)"
             accordance_button = tk.Button(button_frame,
                                           text=accordance_button_text,
                                           bg="white",
