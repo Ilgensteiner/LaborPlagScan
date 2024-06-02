@@ -12,6 +12,8 @@ class VergleichGui:
     def __init__(self, plagiatPaar: PlagiatPaare = None, single_Student: Student = None):
         if plagiatPaar is None and single_Student is None:
             raise Exception("No PlagiatPaar or Student given")
+        self.plagiatPaar = plagiatPaar
+
         self.root = tk.Tk()
         self.root.geometry("600x350")
         self.root.title("PlagScan for Java-Labore")
@@ -50,20 +52,20 @@ class VergleichGui:
         canvas.bind_all("<Button-4>", lambda event: canvas.xview_scroll(-1, "units"))
         canvas.bind_all("<Button-5>", lambda event: canvas.xview_scroll(1, "units"))
 
-        if plagiatPaar is not None:
-            self.display_stud_vergleich(plagiatPaar)
+        if self.plagiatPaar is not None:
+            self.display_stud_vergleich()
         else:
             self.display_stud(single_Student)
         self.create_button_panel_einzelauswertung()
 
         self.root.mainloop()
 
-    def display_stud_vergleich(self, plagiatPaar: PlagiatPaare):
+    def display_stud_vergleich(self):
         """Anzeige der Studierenden im Vergleichsmodus"""
 
-        ttk.Label(self.inner_frame, text=plagiatPaar.student1.name, background="white", foreground="black", padding=5,
+        ttk.Label(self.inner_frame, text=self.plagiatPaar.student1.name, background="white", foreground="black", padding=5,
                   font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=0, column=0, sticky="nsew")
-        ttk.Label(self.inner_frame, text=plagiatPaar.student2.name, background="white", foreground="black", padding=5,
+        ttk.Label(self.inner_frame, text=self.plagiatPaar.student2.name, background="white", foreground="black", padding=5,
                   font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=0, column=1, sticky="nsew")
 
         def display_Files(student_file_list, column):
@@ -90,9 +92,9 @@ class VergleichGui:
                     file_textfeld.tag_add("red", f"{abschnitt[0]}.0", f"{abschnitt[1]}.0")
                 row += 1
 
-        plagiatPaar.markPlagiatCodeinFiles()
-        display_Files(plagiatPaar.student1.files, 0)
-        display_Files(plagiatPaar.student2.files, 1)
+        self.plagiatPaar.markPlagiatCodeinFiles()
+        display_Files(self.plagiatPaar.student1.files, 0)
+        display_Files(self.plagiatPaar.student2.files, 1)
 
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
@@ -186,7 +188,7 @@ class VergleichGui:
 
         if save_as == "xlsx":
             export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file",
-                                                       initialfile="Plagiat " + "-".join(data[0]) + ".xlsx",
+                                                       initialfile=f"Plagiat ({str(round(self.plagiatPaar.plagiatAnteil_Relativ))} %) " + " - ".join(data[0]) + ".xlsx",
                                                        filetypes=(("xlsx files", "*.xlsx"), ("all files", "*.*")))
             FileEditor.table_to_xlsx_export(export_path, data)
         else:
