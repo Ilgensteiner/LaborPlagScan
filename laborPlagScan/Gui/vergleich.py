@@ -165,10 +165,14 @@ class VergleichGui:
     def on_export_table_button(self, save_as="xlsx"):
         data = []
         row = 0
-        while self.inner_frame.grid_slaves(row=row, column=0) != []:
-            column = 0
+        grid_size = self.inner_frame.grid_size()
+
+        for row in range(grid_size[1]):
             row_content = []
-            while self.inner_frame.grid_slaves(row=row, column=column) != []:
+            for column in range(grid_size[0]):
+                if not self.inner_frame.grid_slaves(row=row, column=column):
+                    row_content.append("")
+                    continue
                 grid_widget = self.inner_frame.grid_slaves(row=row, column=column)[0]
                 if grid_widget.widgetName == "text":
                     row_content.append(grid_widget.get("1.0", "end-1c").replace("\t", "    "))
@@ -178,9 +182,7 @@ class VergleichGui:
                     row_content.append(frameinhalt[1].cget("text"))
                 else:
                     row_content.append(grid_widget.cget("text").replace("\t", "    "))
-                column += 1
             data.append(row_content)
-            row += 1
 
         if save_as == "xlsx":
             export_path = filedialog.asksaveasfilename(initialdir="/", title="Select file",
