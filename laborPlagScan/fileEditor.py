@@ -174,21 +174,6 @@ def table_to_pdf_export(savepath: str, data: list, print_format=A4):
         table_to_pdf_export(savepath, data, format=landscape((297, 210)))
 
 
-def extract_structure_and_data(nested_array):
-    def recursive_extract(array):
-        extracted = []
-        for element in array:
-            if isinstance(element, list):
-                extracted.append(recursive_extract(element))
-            elif isinstance(element, CustomObject):
-                extracted.append(element.extract_value())
-            else:
-                extracted.append(element)
-        return extracted
-
-    return recursive_extract(nested_array)
-
-
 def table_to_xlsx_export(savepath: str, data: list):
     """
     Exports the data to a xlsx file
