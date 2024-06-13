@@ -105,6 +105,7 @@ class VergleichGui:
         self.root.update()
 
     def display_stud(self, student: Student):
+        """Anzeige eines einzelnen Studierenden bei AI-Detektion"""
         ttk.Label(self.inner_frame, text=student.name, background="white", foreground="black", padding=5,
                   font=("Calibri", 12, "bold"), borderwidth=2, relief="solid").grid(row=0, column=0, sticky="nsew")
 
@@ -118,6 +119,7 @@ class VergleichGui:
             file_textfeld = tk.Text(self.inner_frame, background="white", foreground="black", font=("Calibri", 12),
                                     borderwidth=2, relief="solid")
             file_textfeld.grid(row=row, column=0, sticky="nsew")
+            row += 1
             file_textfeld.tag_config("red", foreground="red")
             file_textfeld.insert(tk.END, re.sub(r' {3,}', '   ', str(file.getFileString()).expandtabs(2)))
             height = int(file_textfeld.index('end-1c').split('.')[0])
