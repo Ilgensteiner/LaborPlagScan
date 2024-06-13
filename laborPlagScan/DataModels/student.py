@@ -37,7 +37,7 @@ class Student:
                             self.aiDetection = True
 
         # Sortiere die Dateien nach ihrem Namen
-        self.files.sort(key=lambda x: x.name)
+        self.files.sort(key=lambda x: x.name.lower())
 
     def getZeilenGes(self):
         """Returns the total number of lines of all files in the folder."""
