@@ -239,7 +239,9 @@ class AuswertungGui:
     def on_export_table_button(self, save_as="pdf"):
         data = [["Studenten", "Plagiat-Anteil"]]
         row = 0
-        while self.data_frame.grid_slaves(row=row, column=0) != []:
+        grid_size = self.data_frame.grid_size()
+
+        for row in range(grid_size[1]):
             column = 0
             row_content = []
             while self.data_frame.grid_slaves(row=row, column=column) != []:
