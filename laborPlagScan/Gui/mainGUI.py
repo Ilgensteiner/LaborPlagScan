@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 import pygame
+import threading
 
 import laborPlagScan.fileEditor as FileEditor
 import laborPlagScan.plagiatScanner as PlagiatScanner
@@ -84,7 +85,7 @@ class GUI:
         settings_button.bind("<Leave>", on_leave)
 
         start_button = tk.Button(GUI.root, text="PlagScan starten",
-                                 command=lambda: PlagiatScanner.start_plagscan(self.zipPfad, self))
+                                 command=lambda:     threading.Thread(target=PlagiatScanner.start_plagscan, args=(self.zipPfad, self)).start())
         start_button.grid(row=3, column=1, pady=10, sticky="ew")
         start_button.config(width=20, height=2, bg="#1e90ff", fg="white", font=("Calibri", 14, "bold"))
         start_button.bind("<Enter>", on_enter)
